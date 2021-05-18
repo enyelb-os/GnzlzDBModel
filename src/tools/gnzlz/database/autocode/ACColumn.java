@@ -29,8 +29,12 @@ protected String name;
 		return name;
 	}
 	
-	public String nameF() {
+	public String nameCamelCase() {
 		return ACFormat.camelCaseMethod(name);
+	}
+	
+	public String nameUpperCase() {
+		return name.toUpperCase();
 	}
 	
 	/****************************

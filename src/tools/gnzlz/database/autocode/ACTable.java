@@ -21,7 +21,7 @@ public class ACTable {
 		return table;
 	}
 	
-	String tableF() {
+	String tableCamelCase() {
 		return ACFormat.camelCaseClass(table);
 	}
 	

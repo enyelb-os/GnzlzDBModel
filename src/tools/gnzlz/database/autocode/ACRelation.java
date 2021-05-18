@@ -18,11 +18,23 @@ public class ACRelation {
 		return nameColumn;
 	}
 	
+	String columnUpperCase() {
+		return nameColumn.toUpperCase();
+	}
+	
+	String relationColumnUpperCase() {
+		return relationCamelCase().concat(".").concat(columnUpperCase());
+	}
+	
 	String relation() {
 		return relations;
 	}
 	
-	String relationF() {
+	String relationCamelCase() {
 		return ACFormat.camelCaseClass(relations);
+	}
+	
+	String relationCamelCaseClass() {
+		return ACFormat.camelCaseClass(relations).concat(".class");
 	}
 }

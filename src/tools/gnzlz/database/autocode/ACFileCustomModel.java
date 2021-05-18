@@ -64,7 +64,7 @@ public class ACFileCustomModel {
 	 ********************************/
 
 	static String nameF(ACTable table) {
-		return "IC"+table.tableF(); 
+		return "IC"+table.tableCamelCase(); 
 	}
 	
 	/********************************
@@ -73,7 +73,7 @@ public class ACFileCustomModel {
 	
 	private static String imports(ACDataBase dataBase,ACTable table) {
 		return new StringBuilder()
-				.append("import ").append(modelPackage(dataBase)).append(".").append(table.tableF()).append(";").append(line(1)).toString();
+				.append("import ").append(modelPackage(dataBase)).append(".").append(table.tableCamelCase()).append(";").append(line(1)).toString();
 	}
 	
 	/********************************
@@ -101,7 +101,7 @@ public class ACFileCustomModel {
 				.append(tab(1)).append("/*******************************************").append(line(1))
 				.append(tab(1)).append(" * @Example").append(line(1))
 				.append(tab(1)).append(" * public default <TypeData> nameMethod() {").append(line(1))
-				.append(tab(1)).append(" * \t\tmodel = ").append(ACFormat.camelCaseMethod(table.tableF())).append("();").append(line(1))
+				.append(tab(1)).append(" * \t\tmodel = ").append(ACFormat.camelCaseMethod(table.tableCamelCase())).append("();").append(line(1))
 				.append(tab(1)).append(" * \t\tcode ... ").append(line(1))
 				.append(tab(1)).append(" * }").append(line(1))
 				.append(tab(1)).append(" *******************************************/").toString();
@@ -113,7 +113,7 @@ public class ACFileCustomModel {
 	
 	private static String method(ACTable table) {
 		return new StringBuilder()
-				.append(tab(1)).append("public ").append(table.tableF()).append(" ").append("modelDB();").toString();
+				.append(tab(1)).append("public ").append(table.tableCamelCase()).append(" ").append("modelDB();").toString();
 	}
 	
 	/********************************

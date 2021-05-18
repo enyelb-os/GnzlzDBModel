@@ -14,8 +14,8 @@ public class ACFileModel {
 	public static void createFile(ACDataBase dataBase) {
 		try {
 			for (ACTable table : dataBase.tables()) {
-				System.out.println("creating model "+table.tableF()+" | path:" + path(dataBase)+table.tableF()+".java");
-				File file = new File(path(dataBase)+table.tableF()+".java");
+				System.out.println("creating model "+table.tableCamelCase()+" | path:" + path(dataBase)+table.tableCamelCase()+".java");
+				File file = new File(path(dataBase)+table.tableCamelCase()+".java");
 				if(!file.exists())
 					Files.createFile(file.toPath());
 				FileWriter fileWriter = new FileWriter(file.toString());
@@ -24,6 +24,8 @@ public class ACFileModel {
 				fileWriter.write(imports(dataBase,table));
 				fileWriter.write(line(1));
 				fileWriter.write(dbModelName(table));
+				fileWriter.write(line(2));
+				fileWriter.write(columnsVars(table));
 				fileWriter.write(line(2));
 				fileWriter.write(dbTableConfig(table));
 				fileWriter.write(line(2));
@@ -123,7 +125,7 @@ public class ACFileModel {
 	 ********************************/
 	
 	private static String dbModelName(ACTable table) {
-		return new StringBuilder().append("public class ").append(table.tableF()).append(" extends DBModel<").append(table.tableF()).append("> implements ").append(ACFileCustomModel.nameF(table)).append(" {").toString();
+		return new StringBuilder().append("public class ").append(table.tableCamelCase()).append(" extends DBModel<").append(table.tableCamelCase()).append("> implements ").append(ACFileCustomModel.nameF(table)).append(" {").toString();
 	}
 	
 	/********************************
@@ -162,7 +164,7 @@ public class ACFileModel {
 		ACColumn column = table.primaryKey();
 		if(column == null)
 			return "";
-		return new StringBuilder().append(".addPrimaryKey(\"").append(column.name()).append("\")").toString();
+		return new StringBuilder().append(".addPrimaryKey(").append(column.nameUpperCase()).append(")").toString();
 	}
 	
 	/********************************
@@ -174,8 +176,8 @@ public class ACFileModel {
 		if(!columns.isEmpty()){
 			StringBuilder string = new StringBuilder();
 			for (int i = 0; i < columns.size(); i++) {
-				string.append("\"").append(columns.get(i).name).append("\"");
-				if(i != columns.size() - 1) string.append(",");
+				string.append(columns.get(i).nameUpperCase());
+				if(i != columns.size() - 1) string.append(", ");
 			}
 			
 			return new StringBuilder().append(".addColumns(").append(string).append(")").toString();
@@ -235,10 +237,10 @@ public class ACFileModel {
 	}
 	
 	private static String addHasOne(ACColumn column,ACRelation relation) {
-		return new StringBuilder().append(".addHasOne(\"")
-				.append(column.name()).append("\",")
-				.append(relation.relationF()).append(".class,")
-				.append("\"").append(relation.column()).append("\"")
+		return new StringBuilder().append(".addHasOne(")
+				.append(column.nameUpperCase()).append(", ")
+				.append(relation.relationCamelCaseClass()).append(", ")
+				.append(relation.relationColumnUpperCase())
 				.append(")").toString();
 	}
 
@@ -266,10 +268,10 @@ public class ACFileModel {
 	}
 	
 	private static String addHasMany(ACColumn column, ACRelation relation) {
-		return new StringBuilder().append(".addHasMany(\"")
-				.append(column.name()).append("\",")
-				.append(relation.relationF()).append(".class,")
-				.append("\"").append(relation.column()).append("\"")
+		return new StringBuilder().append(".addHasMany(")
+				.append(column.nameUpperCase()).append(", ")
+				.append(relation.relationCamelCaseClass()).append(", ")
+				.append(relation.relationColumnUpperCase())
 				.append(")").toString();
 	}
 	
@@ -297,14 +299,33 @@ public class ACFileModel {
 	}
 	
 	private static String addBelongsToMany(ACColumn column, ACManyToMany relation) {
-		return new StringBuilder().append(".addBelongsToMany(\"")
-				.append(column.name()).append("\",\"")
-				.append(relation.internalKey1()).append("\",")
-				.append(relation.relationInternalF()).append(".class,\"")
-				.append(relation.internalKey2()).append("\",")
-				.append(relation.relationForeignF()).append(".class,\"")
-				.append(relation.foreignKey()).append("\"")
+		return new StringBuilder().append(".addBelongsToMany(")
+				.append(column.nameUpperCase()).append(", ")
+				.append(relation.relationInternalKey1UpperCase()).append(", ")
+				.append(relation.relationInternalCamelCaseClass()).append(", ")
+				.append(relation.relationInternalKey2UpperCase()).append(", ")
+				.append(relation.relationForeignCamelCaseClass()).append(", ")
+				.append(relation.relationForeignKeyUpperCase())
 				.append(")").toString();
+	}
+	
+	/********************************
+	 * columnsVar
+	 ********************************/
+	
+	private static String columnsVars(ACTable table) {
+		ArrayList<ACColumn> columns = table.columns();
+		if(!columns.isEmpty()){
+			StringBuilder string = new StringBuilder();
+			for (int i = 0; i < columns.size(); i++) {
+				string.append(tab(1)).append("public static final String ").append(columns.get(i).nameUpperCase()).append(" = ")
+					.append("\"").append(columns.get(i).name()).append("\";");
+				if(i != columns.size() - 1) string.append(line(1));
+			}
+			
+			return string.toString();
+		}
+		return "";
 	}
 
 	/********************************
@@ -312,7 +333,7 @@ public class ACFileModel {
 	 ********************************/
 	
 	private static String constructor(ACTable table) {
-		return new StringBuilder().append(tab(1)).append("public ").append(table.tableF()).append("() {").append(line(1))
+		return new StringBuilder().append(tab(1)).append("public ").append(table.tableCamelCase()).append("() {").append(line(1))
 				.append(tab(2)).append("super(DBTABLE);").append(line(1))
 				.append(tab(1)).append("}").toString();
 	}
@@ -345,7 +366,7 @@ public class ACFileModel {
 	private static String method(ACTable table) {
 		return new StringBuilder()
 				.append(tab(1)).append("@Override").append(line(1))
-				.append(tab(1)).append("public ").append(table.tableF()).append(" modelDB() {").append(line(1))
+				.append(tab(1)).append("public ").append(table.tableCamelCase()).append(" modelDB() {").append(line(1))
 				.append(tab(2)).append("return this;").append(line(1))
 				.append(tab(1)).append("}").toString();
 	}
@@ -355,11 +376,11 @@ public class ACFileModel {
 		String value = ACFormat.typeValue(column.type());
 		
 		return new StringBuilder()
-				.append(tab(1)).append("public ").append(type).append(" ").append(column.nameF()).append("() {").append(line(1))
-				.append(tab(2)).append("return get(").append("\"").append(column.name()).append("\").").append(value).append(line(1))
+				.append(tab(1)).append("public ").append(type).append(" ").append(column.nameCamelCase()).append("() {").append(line(1))
+				.append(tab(2)).append("return get(").append(column.nameUpperCase()).append(").").append(value).append(line(1))
 				.append(tab(1)).append("}").append(line(2))
-				.append(tab(1)).append("public ").append(table.tableF()).append(" ").append(column.nameF()).append("(").append(type).append(" ").append(column.nameF()).append(") {").append(line(1))
-				.append(tab(2)).append("set(\"").append(column.name()).append("\", ").append(column.nameF()).append(");").append(line(1))
+				.append(tab(1)).append("public ").append(table.tableCamelCase()).append(" ").append(column.nameCamelCase()).append("(").append(type).append(" ").append(column.nameCamelCase()).append(") {").append(line(1))
+				.append(tab(2)).append("set(").append(column.nameUpperCase()).append(", ").append(column.nameCamelCase()).append(");").append(line(1))
 				.append(tab(2)).append("return this;").append(line(1)).append(tab(1)).append("}").toString();
 	}
 	
@@ -369,23 +390,23 @@ public class ACFileModel {
 	
 	private static String statics(ACTable table) {
 		return new StringBuilder()
-				.append(tab(1)).append("public static ").append(table.tableF()).append(" find(Object primaryKey) {").append(line(1))
-				.append(tab(2)).append("return ").append(table.tableF()).append(".find(").append(table.tableF()).append(".class,primaryKey);").append(line(1))
+				.append(tab(1)).append("public static ").append(table.tableCamelCase()).append(" find(Object primaryKey) {").append(line(1))
+				.append(tab(2)).append("return ").append(table.tableCamelCase()).append(".find(").append(table.tableCamelCase()).append(".class,primaryKey);").append(line(1))
 				.append(tab(1)).append("}").append(line(2))
-				.append(tab(1)).append("public static ").append(table.tableF()).append(" find(String column, Object value) {").append(line(1))
-				.append(tab(2)).append("return ").append(table.tableF()).append(".find(").append(table.tableF()).append(".class,column,value);").append(line(1))
+				.append(tab(1)).append("public static ").append(table.tableCamelCase()).append(" find(String column, Object value) {").append(line(1))
+				.append(tab(2)).append("return ").append(table.tableCamelCase()).append(".find(").append(table.tableCamelCase()).append(".class,column,value);").append(line(1))
 				.append(tab(1)).append("}").append(line(2))
-				.append(tab(1)).append("public static ArrayList<").append(table.tableF()).append("> find(Object ... primaryKeys) {").append(line(1))
-				.append(tab(2)).append("return ").append(table.tableF()).append(".findIn(").append(table.tableF()).append(".class,primaryKeys);").append(line(1))
+				.append(tab(1)).append("public static ArrayList<").append(table.tableCamelCase()).append("> find(Object ... primaryKeys) {").append(line(1))
+				.append(tab(2)).append("return ").append(table.tableCamelCase()).append(".findIn(").append(table.tableCamelCase()).append(".class,primaryKeys);").append(line(1))
 				.append(tab(1)).append("}").append(line(2))
-				.append(tab(1)).append("public static ArrayList<").append(table.tableF()).append("> find(String column,Object ... values) {").append(line(1))
-				.append(tab(2)).append("return ").append(table.tableF()).append(".findIn(").append(table.tableF()).append(".class,column,values);").append(line(1))
+				.append(tab(1)).append("public static ArrayList<").append(table.tableCamelCase()).append("> find(String column,Object ... values) {").append(line(1))
+				.append(tab(2)).append("return ").append(table.tableCamelCase()).append(".findIn(").append(table.tableCamelCase()).append(".class,column,values);").append(line(1))
 				.append(tab(1)).append("}").append(line(2))
-				.append(tab(1)).append("public static ArrayList<").append(table.tableF()).append("> findAll(String column,Object value) {").append(line(1))
-				.append(tab(2)).append("return ").append(table.tableF()).append(".findAll(").append(table.tableF()).append(".class,column,value);").append(line(1))
+				.append(tab(1)).append("public static ArrayList<").append(table.tableCamelCase()).append("> findAll(String column,Object value) {").append(line(1))
+				.append(tab(2)).append("return ").append(table.tableCamelCase()).append(".findAll(").append(table.tableCamelCase()).append(".class,column,value);").append(line(1))
 				.append(tab(1)).append("}").append(line(2))
-				.append(tab(1)).append("public static ArrayList<").append(table.tableF()).append("> list() {").append(line(1))
-				.append(tab(2)).append("return ").append(table.tableF()).append(".all(").append(table.tableF()).append(".class);").append(line(1))
+				.append(tab(1)).append("public static ArrayList<").append(table.tableCamelCase()).append("> list() {").append(line(1))
+				.append(tab(2)).append("return ").append(table.tableCamelCase()).append(".all(").append(table.tableCamelCase()).append(".class);").append(line(1))
 				.append(tab(1)).append("}").toString();
 	}
 	
