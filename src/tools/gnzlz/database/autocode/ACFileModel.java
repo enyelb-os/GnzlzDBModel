@@ -25,6 +25,8 @@ public class ACFileModel {
 				fileWriter.write(line(1));
 				fileWriter.write(dbModelName(table));
 				fileWriter.write(line(2));
+				fileWriter.write(tableName(table));
+				fileWriter.write(line(1));
 				fileWriter.write(columnsVars(table));
 				fileWriter.write(line(2));
 				fileWriter.write(dbTableConfig(table));
@@ -153,7 +155,7 @@ public class ACFileModel {
 	 ********************************/
 	
 	private static String addTable(ACTable table) {
-		return new StringBuilder().append(".addTable(\"").append(table.table()).append("\")").toString();
+		return ".addTable(TABLE)";
 	}
 	
 	/********************************
@@ -307,6 +309,14 @@ public class ACFileModel {
 				.append(relation.relationForeignCamelCaseClass()).append(", ")
 				.append(relation.relationForeignKeyUpperCase())
 				.append(")").toString();
+	}
+
+	/********************************
+	 * tableName
+	 ********************************/
+
+	private static String tableName(ACTable table) {
+		return new StringBuilder().append(tab(1)).append("public static final String TABLE = \"").append(table.table()).append("\";").toString();
 	}
 	
 	/********************************
