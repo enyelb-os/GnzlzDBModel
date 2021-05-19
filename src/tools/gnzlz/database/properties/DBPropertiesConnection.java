@@ -1,4 +1,4 @@
-package tools.gnzlz.database.data.properties;
+package tools.gnzlz.database.properties;
 
 import tools.gnzlz.database.data.SQLFile;
 

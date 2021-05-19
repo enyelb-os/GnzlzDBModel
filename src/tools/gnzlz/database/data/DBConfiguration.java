@@ -1,7 +1,8 @@
 package tools.gnzlz.database.data;
 
-import tools.gnzlz.database.data.properties.DBPropertiesConnection;
-import tools.gnzlz.database.data.properties.DBPropertiesModel;
+import tools.gnzlz.database.properties.DBPropertiesConnection;
+import tools.gnzlz.database.properties.DBPropertiesMigration;
+import tools.gnzlz.database.properties.DBPropertiesModel;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -49,18 +50,21 @@ public abstract class DBConfiguration {
 
 	private DBConnection connection;
 	private DBPropertiesModel model;
+	private DBPropertiesMigration migration;
 
 	public DBConfiguration(){
-		intModel(new DBPropertiesModel());
+		initModel(new DBPropertiesModel());
 	}
 
 	/**************************
 	 * DBProperties Abstract
 	 **************************/
 
-	protected abstract void intConnection(DBPropertiesConnection connection);
+	protected abstract void initConnection(DBPropertiesConnection connection);
 
-	protected abstract void intModel(DBPropertiesModel model);
+	protected abstract void initModel(DBPropertiesModel model);
+
+	protected abstract void initMigration(DBPropertiesMigration model);
 	
 	/*****************
 	 * connection
@@ -69,7 +73,7 @@ public abstract class DBConfiguration {
 	public DBConnection connection() {
 		if(connection == null) {
 			DBPropertiesConnection propertiesConnection = new DBPropertiesConnection();
-			intConnection(propertiesConnection);
+			initConnection(propertiesConnection);
 			connection = new DBConnection(propertiesConnection);
 		}
 		return connection;
@@ -82,8 +86,20 @@ public abstract class DBConfiguration {
 	public DBPropertiesModel model() {
 		if(model == null) {
 			model = new DBPropertiesModel();
-			intModel(model);
+			initModel(model);
 		}
 		return model;
+	}
+
+	/**********************
+	 * MigrationProperties
+	 **********************/
+
+	public DBPropertiesMigration migration() {
+		if(migration == null) {
+			migration = new DBPropertiesMigration();
+			initMigration(migration);
+		}
+		return migration;
 	}
 }

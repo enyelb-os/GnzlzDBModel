@@ -4,7 +4,7 @@ import java.io.File;
 import java.sql.*;
 import java.util.ArrayList;
 
-import tools.gnzlz.database.data.properties.DBPropertiesConnection;
+import tools.gnzlz.database.properties.DBPropertiesConnection;
 import tools.gnzlz.database.query.builder.Query;
 
 public class DBConnection{
@@ -79,6 +79,8 @@ public class DBConnection{
 					connection = connection(properties.user(), "");
 				else
 					connection = connection();
+
+				System.out.println(connection.getSchema());
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -132,9 +134,9 @@ public class DBConnection{
 		ArrayList<DBModel<?>> dbModels = new ArrayList<DBModel<?>>();
 		try {
 			open();
-			if(debug) System.out.println("database: " + properties.name() + " | searching the columns in the tabla: " + table);
+			if(debug) System.out.println("database: " + connection.getCatalog() + " | searching the columns in the tabla: " + table);
             DatabaseMetaData metaData = connection.getMetaData();
-			ResultSet r = metaData.getColumns(properties.name(), null, table, null);
+			ResultSet r = metaData.getColumns(connection.getCatalog(), null, table, null);
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
 				dbModel.initColumns(r);
@@ -155,8 +157,8 @@ public class DBConnection{
 		try {
 			open();
             DatabaseMetaData metaData = connection.getMetaData();
-            if(debug) System.out.println("database: " + properties.name() + " | searching the primary key in the tabla: " + table);
-			ResultSet r = metaData.getPrimaryKeys(properties.name(), null, table);
+            if(debug) System.out.println("database: " + connection.getCatalog() + " | searching the primary key in the tabla: " + table);
+			ResultSet r = metaData.getPrimaryKeys(connection.getCatalog(), null, table);
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
 				dbModel.initColumns(r);
@@ -177,8 +179,8 @@ public class DBConnection{
 		try {
 			open();
             DatabaseMetaData metaData = connection.getMetaData();
-            if(debug) System.out.println("database: " + properties.name() + " | searching the foreign keys in the tabla: " + table);
-			ResultSet r = metaData.getExportedKeys(properties.name(), null, table);
+            if(debug) System.out.println("database: " + connection.getCatalog() + " | searching the foreign keys in the tabla: " + table);
+			ResultSet r = metaData.getExportedKeys(connection.getCatalog(), null, table);
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
 				dbModel.initColumns(r);
@@ -198,9 +200,9 @@ public class DBConnection{
 		ArrayList<DBModel<?>> dbModels = new ArrayList<DBModel<?>>();
 		try {
 			open();
-			if(debug) System.out.println("database: " + properties.name() + " | searching the primary keys of other tables, for the table: " + table);
+			if(debug) System.out.println("database: " + connection.getCatalog() + " | searching the primary keys of other tables, for the table: " + table);
             DatabaseMetaData metaData = connection.getMetaData();
-			ResultSet r = metaData.getImportedKeys(properties.name(), null, table);
+			ResultSet r = metaData.getImportedKeys(connection.getCatalog(), null, table);
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
 				dbModel.initColumns(r);
