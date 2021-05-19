@@ -53,8 +53,8 @@ public class ACFileModel {
 	 ********************************/
 
 	private static String modelPackage(ACDataBase dataBase) {
-		if(dataBase.configuration.modelPackage()!=null)
-			return dataBase.configuration.modelPackage();
+		if(dataBase.configuration.model().modelPackage()!=null)
+			return dataBase.configuration.model().modelPackage();
 		else 
 			return dataBase.configuration.getClass().getPackage().getName() + ".model"; 
 	}

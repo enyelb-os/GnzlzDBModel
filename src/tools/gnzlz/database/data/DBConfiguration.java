@@ -1,10 +1,12 @@
 package tools.gnzlz.database.data;
 
+import tools.gnzlz.database.data.properties.DBPropertiesConnection;
+import tools.gnzlz.database.data.properties.DBPropertiesModel;
+
 import java.lang.reflect.InvocationTargetException;
-import java.sql.Driver;
 import java.util.ArrayList;
 
-public class DBConfiguration {
+public abstract class DBConfiguration {
 	
 	/*****************
 	 * Static
@@ -40,139 +42,25 @@ public class DBConfiguration {
 		configurations().add(configuration);
 		return configuration;
 	}
-	
+
 	/*****************
 	 * Constructor
 	 *****************/
-	
-	protected SQLFile script;
-	protected Driver driver;
-	protected String modelPackage;
-	protected String prefix;
-	protected String path;
-	protected String name;
-	protected String user;
-	protected String password;
-	protected String properties;
-	protected boolean refresh;
+
 	private DBConnection connection;
-	
-	private StringBuilder url;
-	
-	/*****************
-	 * 
-	 *****************/
-	
-	protected StringBuilder url() {
-		if(url == null) url = urlRefresh();
-		return url;
+	private DBPropertiesModel model;
+
+	public DBConfiguration(){
+		intModel(new DBPropertiesModel());
 	}
-	
-	protected StringBuilder urlRefresh() {
-		url = new StringBuilder();
-		if(prefix != null) url.append(prefix);
-		if(path != null) url.append(path);
-		if(name != null) url.append(name);
-		if(properties != null) url.append("?").append(properties);
-		return url;
-	}
-	
-	/*****************
-	 * properties
-	 *****************/
-	
-	protected DBConfiguration properties(String properties) {
-		this.properties = properties;
-		return this;
-	}
-	
-	/*****************
-	 * script
-	 *****************/
-	
-	protected DBConfiguration script(SQLFile script) {
-		this.script = script;
-		return this;
-	}
-	
-	/*****************
-	 * script
-	 *****************/
-	
-	protected DBConfiguration driver(Driver driver) {
-		this.driver = driver;
-		return this;
-	}
-	
-	/*****************
-	 * prefix
-	 *****************/
-	
-	protected DBConfiguration prefix(String prefix) {
-		this.prefix = prefix;
-		return this;
-	}
-	
-	/*****************
-	 * path
-	 *****************/
-	
-	protected DBConfiguration path(String path) {
-		this.path = path;
-		return this;
-	}
-	
-	/*****************
-	 * name
-	 *****************/
-	
-	protected DBConfiguration name(String name) {
-		this.name = name;
-		return this;
-	}
-	
-	/*****************
-	 * user
-	 *****************/
-	
-	protected void user(String user) {
-		this.user = user;
-	}
-	
-	/*****************
-	 * password
-	 *****************/
-	
-	protected DBConfiguration password(String password) {
-		this.password = password;
-		return this;
-	}
-	
-	/*****************
-	 * modelPackage
-	 *****************/
-	
-	protected DBConfiguration modelPackage(String modelPackage) {
-		this.modelPackage = modelPackage;
-		return this;
-	}
-	
-	protected DBConfiguration internalPackage(String modelPackage) {
-		return modelPackage(this.getClass().getPackage().getName()+"."+modelPackage);
-	}
-	
-	public String modelPackage() {
-		return modelPackage;
-	}
-	
-	/*****************
-	 * refresh
-	 *****************/
-	
-	protected DBConfiguration refresh(boolean refresh) {
-		this.refresh = refresh;
-		return this;
-	}
+
+	/**************************
+	 * DBProperties Abstract
+	 **************************/
+
+	protected abstract void intConnection(DBPropertiesConnection connection);
+
+	protected abstract void intModel(DBPropertiesModel model);
 	
 	/*****************
 	 * connection
@@ -180,8 +68,22 @@ public class DBConfiguration {
 	
 	public DBConnection connection() {
 		if(connection == null) {
-			connection = new DBConnection(this);
+			DBPropertiesConnection propertiesConnection = new DBPropertiesConnection();
+			intConnection(propertiesConnection);
+			connection = new DBConnection(propertiesConnection);
 		}
 		return connection;
+	}
+
+	/*******************
+	 * ModelProperties
+	 *******************/
+
+	public DBPropertiesModel model() {
+		if(model == null) {
+			model = new DBPropertiesModel();
+			intModel(model);
+		}
+		return model;
 	}
 }

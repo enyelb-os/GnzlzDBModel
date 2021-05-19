@@ -1,49 +1,51 @@
 package tools.gnzlz.database.data;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 
+import tools.gnzlz.database.data.properties.DBPropertiesConnection;
 import tools.gnzlz.database.query.builder.Query;
 
 public class DBConnection{
+
+	private DBPropertiesConnection properties;
 	
 	/**********************
 	 * DataBaseConnection
 	 **********************/
+
 	private Connection connection;
-	private DBConfiguration configuration;
-	
-	public DBConnection(DBConfiguration configuration){
-		this.configuration = configuration;
-		if(configuration.driver != null)
+
+	/***********************
+	 * constructor
+	 ***********************/
+
+	public DBConnection(DBPropertiesConnection properties){
+		this.properties = properties;
+		if(this.properties.driver() != null)
 			try {
-				DriverManager.registerDriver(configuration.driver);
+				DriverManager.registerDriver(this.properties.driver());
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-		createDataBaseifFile(configuration);
+		createDataBaseifFile();
 	}
 	
 	/**********************
 	 * Create db if is file
 	 **********************/
 	
-	private void createDataBaseifFile(DBConfiguration configuration) {
+	private void createDataBaseifFile() {
 		String file = "";
-		if(configuration.path != null) file = configuration.path; 
-		if(configuration.name != null) file = file + configuration.name;
+		if(properties.path() != null) file = properties.path();
+		if(properties.name() != null) file = file + properties.name();
 		if(!new File(file).exists())
 	        try {
 	        	open();
 	            connection.getMetaData();
-	            executeScriptInitial(configuration);
-	            connection.close();
+	            executeScriptInitial();
+	            close();
 	        } catch (SQLException e) {
 	            System.err.println(e.getMessage());
 	        }
@@ -53,11 +55,11 @@ public class DBConnection{
 	 * Script Initial
 	 **********************/
 	
-	private void executeScriptInitial(DBConfiguration configuration) {
+	private void executeScriptInitial() {
 		try {
         	open();
-        	if(configuration.script != null && configuration.script.script() != null)
-            	for (String sql : configuration.script.script())
+        	if(properties.script() != null && properties.script().script() != null)
+            	for (String sql : properties.script().script())
             		if(!connection.prepareStatement(sql).execute()) System.out.println(sql);
         } catch (SQLException e) {
             System.err.println(e.getMessage());
@@ -70,18 +72,32 @@ public class DBConnection{
 	
 	public synchronized DBConnection open(){
 		try {
-			if((connection == null || connection.isClosed()) && configuration != null) {
-				if(configuration.user !=null && configuration.password !=null)
-					connection = DriverManager.getConnection(configuration.url().toString(), configuration.user, configuration.password);
-				else if(configuration.user != null)
-					connection = DriverManager.getConnection(configuration.url().toString(), configuration.user, "");
+			if((connection == null || connection.isClosed())) {
+				if(properties.user() !=null && properties.password() !=null)
+					connection = connection(properties.user(), properties.password());
+				else if(properties.user() != null)
+					connection = connection(properties.user(), "");
 				else
-					connection = DriverManager.getConnection(configuration.url().toString());
+					connection = connection();
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return this;
+	}
+
+	private Connection connection() throws SQLException {
+		if(properties.dataSource() != null)
+			return properties.dataSource().getConnection();
+		else
+			return DriverManager.getConnection(properties.url().toString());
+	}
+
+	private Connection connection(String user, String password) throws SQLException {
+		if(properties.dataSource() != null)
+			return properties.dataSource().getConnection(user,password);
+		else
+			return DriverManager.getConnection(properties.url().toString(),user,password);
 	}
 	
 	/**********************
@@ -95,8 +111,8 @@ public class DBConnection{
 		try {
 			open();
             DatabaseMetaData metaData = connection.getMetaData();
-            if(debug) System.out.println("searching the tables in the database: " + configuration.name);
-			ResultSet r = metaData.getTables(configuration.name, null, "%", new String[]{"TABLE"});
+            if(debug) System.out.println("searching the tables in the database: " + properties.name());
+			ResultSet r = metaData.getTables(properties.name(), null, "%", new String[]{"TABLE"});
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
 				dbModel.initColumns(r);
@@ -116,9 +132,9 @@ public class DBConnection{
 		ArrayList<DBModel<?>> dbModels = new ArrayList<DBModel<?>>();
 		try {
 			open();
-			if(debug) System.out.println("database: " + configuration.name + " | searching the columns in the tabla: " + table);
+			if(debug) System.out.println("database: " + properties.name() + " | searching the columns in the tabla: " + table);
             DatabaseMetaData metaData = connection.getMetaData();
-			ResultSet r = metaData.getColumns(configuration.name, null, table, null);
+			ResultSet r = metaData.getColumns(properties.name(), null, table, null);
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
 				dbModel.initColumns(r);
@@ -139,8 +155,8 @@ public class DBConnection{
 		try {
 			open();
             DatabaseMetaData metaData = connection.getMetaData();
-            if(debug) System.out.println("database: " + configuration.name + " | searching the primary key in the tabla: " + table);
-			ResultSet r = metaData.getPrimaryKeys(configuration.name, null, table);
+            if(debug) System.out.println("database: " + properties.name() + " | searching the primary key in the tabla: " + table);
+			ResultSet r = metaData.getPrimaryKeys(properties.name(), null, table);
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
 				dbModel.initColumns(r);
@@ -161,8 +177,8 @@ public class DBConnection{
 		try {
 			open();
             DatabaseMetaData metaData = connection.getMetaData();
-            if(debug) System.out.println("database: " + configuration.name + " | searching the foreign keys in the tabla: " + table);
-			ResultSet r = metaData.getExportedKeys(configuration.name, null, table);
+            if(debug) System.out.println("database: " + properties.name() + " | searching the foreign keys in the tabla: " + table);
+			ResultSet r = metaData.getExportedKeys(properties.name(), null, table);
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
 				dbModel.initColumns(r);
@@ -182,9 +198,9 @@ public class DBConnection{
 		ArrayList<DBModel<?>> dbModels = new ArrayList<DBModel<?>>();
 		try {
 			open();
-			if(debug) System.out.println("database: " + configuration.name + " | searching the primary keys of other tables, for the table: " + table);
+			if(debug) System.out.println("database: " + properties.name() + " | searching the primary keys of other tables, for the table: " + table);
             DatabaseMetaData metaData = connection.getMetaData();
-			ResultSet r = metaData.getImportedKeys(configuration.name, null, table);
+			ResultSet r = metaData.getImportedKeys(properties.name(), null, table);
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
 				dbModel.initColumns(r);
@@ -207,7 +223,7 @@ public class DBConnection{
 		exportedKeys(table).stream().forEach((db)->{
 			importedKeys(db.get("FKTABLE_NAME").stringValue()).stream().forEach((dbf)->{
 				if(!dbf.get("PKTABLE_NAME").stringValue().equals(table)){
-					if(nDebug) System.out.println("database: " + configuration.name + " | searching relationships many to many (" + table +", "+db.get("FKTABLE_NAME").object+", "+dbf.get("PKTABLE_NAME").object+")");
+					if(nDebug) System.out.println("database: " + properties.name() + " | searching relationships many to many (" + table +", "+db.get("FKTABLE_NAME").object+", "+dbf.get("PKTABLE_NAME").object+")");
 					DBModel dbModel = DBModel.create(DBModel.class);
 					dbModel.set("PKCOLUMN_NAME", db.get("PKCOLUMN_NAME").object);
 					dbModel.set("PKTABLE_NAME", db.get("PKTABLE_NAME").object);

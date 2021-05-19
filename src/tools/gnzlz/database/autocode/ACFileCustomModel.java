@@ -39,15 +39,15 @@ public class ACFileCustomModel {
 	 ********************************/
 
 	private static String modelPackage(ACDataBase dataBase) {
-		if(dataBase.configuration.modelPackage()!=null)
-			return dataBase.configuration.modelPackage();
+		if(dataBase.configuration.model().modelPackage()!=null)
+			return dataBase.configuration.model().modelPackage();
 		else 
 			return dataBase.configuration.getClass().getPackage().getName() + ".model"; 
 	}
 	
 	static String icModelPackage(ACDataBase dataBase) {
-		if(dataBase.configuration.modelPackage()!=null)
-			return dataBase.configuration.modelPackage()+".custom";
+		if(dataBase.configuration.model().modelPackage()!=null)
+			return dataBase.configuration.model().modelPackage()+".custom";
 		else 
 			return dataBase.configuration.getClass().getPackage().getName() + ".model.custom"; 
 	}

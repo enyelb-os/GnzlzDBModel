@@ -443,7 +443,7 @@ public class DBModel<M extends DBModel<?>>{
 	 ***********************/
 	
 	protected M find(DBObject column) {
-		if(table != null && column !=null && column.object() != null && (column.isChange() || table.configuration().refresh))
+		if(table != null && column !=null && column.object() != null && (column.isChange() || table.configuration().model().refresh()))
 			return (M) table.query(Select.create().from(table.table()).where(column.name(), column.object())).executeSingle(this);
 		return (M) this;
 	}
