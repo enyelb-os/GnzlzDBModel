@@ -1,9 +1,9 @@
-package tools.gnzlz.database.migration;
+package tools.gnzlz.database.migration.interfaces;
 
 import tools.gnzlz.database.properties.PropertiesTable;
 
 @FunctionalInterface
-public interface IDBMigration {
+public interface IMigration {
 
     void initTable(PropertiesTable table);
 }

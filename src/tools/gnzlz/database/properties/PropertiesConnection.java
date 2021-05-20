@@ -3,7 +3,11 @@ package tools.gnzlz.database.properties;
 import tools.gnzlz.database.model.SQLFile;
 
 import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Driver;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Set;
 
 public class PropertiesConnection {
 
@@ -14,7 +18,7 @@ public class PropertiesConnection {
 	protected String name;
 	protected String user;
 	protected String password;
-	protected String properties;
+	protected Hashtable<String,String> properties;
 	protected StringBuilder url;
 	protected DataSource dataSource;
 
@@ -32,7 +36,7 @@ public class PropertiesConnection {
 		if(prefix != null) url.append(prefix);
 		if(path != null) url.append(path);
 		if(name != null) url.append(name);
-		if(properties != null) url.append("?").append(properties);
+		if(properties != null) url.append(propertiesToString());
 		return url;
 	}
 
@@ -40,13 +44,28 @@ public class PropertiesConnection {
 	 * properties
 	 *****************/
 
-	public PropertiesConnection properties(String properties) {
-		this.properties = properties;
+	private Hashtable<String,String> properties(){
+		if(properties == null) properties = new Hashtable<String, String>();
+		return properties;
+	}
+
+	public PropertiesConnection property(String key, String value) {
+		properties().put(key,value);
 		return this;
 	}
 
-	public String properties() {
-		return properties;
+	public String propertiesToString() {
+
+		if(properties != null) {
+			StringBuilder string = new StringBuilder();
+			int i = 0;
+			for (Map.Entry<String, String> entry : properties().entrySet()) {
+				string.append(i == 0 ? "?" : "&").append(entry.getKey()).append("=").append(entry.getValue());
+				i++;
+			}
+			return string.toString();
+		}
+		return "";
 	}
 
 	/*****************

@@ -25,7 +25,7 @@ public class DBROneToOne {
 
 	public DBModel<?> hasOne(DBModel<?> modelForeign, DBObject foreignKey) {
 		Select select = Select.create()
-				.table(modelLocal().table(), "", toArray(modelLocal().columns()))
+				.table(modelLocal().table(), "", modelLocal().columnsNamesArray())
 				.join(modelForeign.table(), foreignKey.name, modelLocal().table(), localaKey)
 				.where(modelForeign.table()+"."+foreignKey.name, foreignKey.object);
 		
@@ -35,13 +35,5 @@ public class DBROneToOne {
 	private <T extends DBModel<?>> DBModel<?> modelLocal() {
 		if(modelLocal == null) modelLocal = DBModel.create((Class<T>) relationLocal);
 		return modelLocal;
-	}
-	
-	private String[] toArray(ArrayList<DBObject> dbObjects){
-		String[] list = new String[dbObjects.size()];
-		for (int i = 0; i < list.length; i++) {
-			list[i] = dbObjects.get(i).name;
-		}
-		return list;
 	}
 }

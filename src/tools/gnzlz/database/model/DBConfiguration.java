@@ -24,7 +24,7 @@ public abstract class DBConfiguration {
 	 * Create
 	 ***********************/
 	
-	public static <T extends DBConfiguration> T create(Class<T> c) {
+	private static <T extends DBConfiguration> T create(Class<T> c) {
 		try {
 			return c.getDeclaredConstructor().newInstance();
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
@@ -62,7 +62,7 @@ public abstract class DBConfiguration {
 
 	protected abstract void initModel(PropertiesModel model);
 
-	protected abstract void initMigration(PropertiesMigration model);
+	protected abstract void initMigration(PropertiesMigration migration);
 	
 	/*****************
 	 * connection
@@ -81,7 +81,7 @@ public abstract class DBConfiguration {
 	 * ModelProperties
 	 *******************/
 
-	public PropertiesModel model() {
+	PropertiesModel model() {
 		if(model == null) {
 			model = new PropertiesModel();
 			initModel(model);

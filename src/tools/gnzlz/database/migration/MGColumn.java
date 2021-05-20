@@ -1,6 +1,6 @@
 package tools.gnzlz.database.migration;
 
-public class MigrationColumn {
+public class MGColumn {
 
     private String column;
     private String type;
@@ -9,9 +9,8 @@ public class MigrationColumn {
      * column
      *****************/
 
-    public MigrationColumn column(String column) {
+    public MGColumn(String column) {
         this.column = column;
-        return this;
     }
 
     public String column() {
@@ -22,7 +21,7 @@ public class MigrationColumn {
      * type
      *****************/
 
-    public MigrationColumn type(String type) {
+    public MGColumn type(String type) {
         this.type = type;
         return this;
     }

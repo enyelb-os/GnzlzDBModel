@@ -53,4 +53,6 @@ public abstract class DBMigration {
      **************************/
 
     protected abstract void initTable(PropertiesTable table);
+
+    protected abstract String table();
 }

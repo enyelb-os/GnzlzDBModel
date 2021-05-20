@@ -30,6 +30,15 @@ public class DBModel<M extends DBModel<?>>{
 	}
     
     public DBModel() {}
+
+	/***********************
+	 * Models List
+	 ***********************/
+
+	private static ArrayList<DBModel<?>> models() {
+		if(models == null) models = new ArrayList<DBModel<?>>();
+		return models;
+	}
 	
 	/***********************
 	 * Create
@@ -43,6 +52,16 @@ public class DBModel<M extends DBModel<?>>{
 			e.printStackTrace();
 		}
 		throw new IllegalStateException("Class Error: ");
+	}
+
+	static <T extends DBModel<?>> DBModel<?> model(Class<T> c) {
+		for (DBModel<?> dbModel : models()) {
+			if(dbModel.getClass().getName().equals(c.getName()))
+				return dbModel;
+		}
+		T model = create(c);
+		models().add(model);
+		return model;
 	}
 	
 	/***********************
@@ -69,7 +88,7 @@ public class DBModel<M extends DBModel<?>>{
 				if(dbObject == null)
 					columns().add(new DBObject(dbColumn.name, null, dbColumn));
 				else 
-					dbObject.setColumn(dbColumn);
+					dbObject.column(dbColumn);
 			}
 		}
 		return (M) this;
@@ -99,7 +118,7 @@ public class DBModel<M extends DBModel<?>>{
 	public M primaryKey(Object object) {
 		DBObject dbObject = primaryKey();
 		if(dbObject != null && object != null)
-			dbObject.setObject(object);
+			dbObject.object(object);
 		return (M) this;
 	}
 	
@@ -136,6 +155,18 @@ public class DBModel<M extends DBModel<?>>{
 		if(columns == null) columns = new ArrayList<DBObject>(); 
 		return columns;
 	}
+
+	public ArrayList<String> columnsNames() {
+		ArrayList<String> names = new ArrayList<String>();
+		for (DBObject dbObject: columns()) {
+			names.add(dbObject.name);
+		}
+		return names;
+	}
+
+	public String[] columnsNamesArray() {
+		return (String[]) columnsNames().toArray();
+	}
 	
 	/***********************
 	 * Get
@@ -167,9 +198,9 @@ public class DBModel<M extends DBModel<?>>{
 				if (dbObject.name().equals(name)) {
 					exists = true;
 					if(object instanceof Date)
-						dbObject.setObject(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format((Date)object));
+						dbObject.object(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format((Date)object));
 					else
-						dbObject.setObject(object);
+						dbObject.object(object);
 					break;
 				}
 			}
@@ -182,7 +213,7 @@ public class DBModel<M extends DBModel<?>>{
 	public void set(int i, Object object) {
 		if(object != null) {
 			DBObject dbObject = columns().get(i);
-			if(dbObject != null) dbObject.setObject(object);
+			if(dbObject != null) dbObject.object(object);
 		}
 	}
 	
@@ -199,25 +230,6 @@ public class DBModel<M extends DBModel<?>>{
 			}
 		}
 		return isChange;
-	}
-	
-	/***********************
-	 * Models List
-	 ***********************/
-	
-	private static ArrayList<DBModel<?>> models() {
-		if(models == null) models = new ArrayList<DBModel<?>>(); 
-		return models;
-	}
-	
-	static <T extends DBModel<?>> DBModel<?> model(Class<T> c) {
-		for (DBModel<?> dbModel : models()) {
-			if(dbModel.getClass().getName().equals(c.getName()))
-				return dbModel;
-		}	
-		T model = create(c);
-		models().add(model);
-		return model;
 	}
 	
 	/***********************

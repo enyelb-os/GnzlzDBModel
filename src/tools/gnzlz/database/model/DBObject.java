@@ -27,23 +27,8 @@ public class DBObject {
 	 * Name
 	 ****************************/
 	
-	public String getName() {
-		return name;
-	}
-	
 	public String name() {
 		return name;
-	}
-	
-	/****************************
-	 * Object
-	 ****************************/
-	
-	public void setObject(Object object) {
-		if(!equals(this.object, object)) {
-			isChange = true;
-			this.object = object;
-		}
 	}
 	
 	/****************************
@@ -58,12 +43,11 @@ public class DBObject {
 	
 	
 	public DBObject object(Object object) {
-		setObject(object);
+		if(!equals(this.object, object)) {
+			isChange = true;
+			this.object = object;
+		}
 		return this;
-	}
-	
-	public Object getObject() {
-		return object;
 	}
 	
 	public Object object() {
@@ -74,12 +58,8 @@ public class DBObject {
 	 * Change
 	 ****************************/
 	
-	void setChange(boolean change) {
-		this.isChange = change;
-	}
-	
 	DBObject change(boolean change) {
-		setChange(change);
+		this.isChange = change;
 		return this;
 	}
 	
@@ -95,17 +75,9 @@ public class DBObject {
 	 * Column
 	 ****************************/
 	
-	void setColumn(DBColumn column) {
-		this.column = column;
-	}
-	
 	DBObject column(DBColumn column) {
-		setColumn(column);
+		this.column = column;
 		return this;
-	}
-	
-	public DBColumn getColumn() {
-		return column;
 	}
 	
 	public DBColumn column() {
@@ -266,5 +238,4 @@ public class DBObject {
 			return "( ".concat(name).concat(",").concat(object.toString()).concat(" )");
 		return "( ".concat(name).concat(",").concat("null").concat(" )");
 	}
-
 }

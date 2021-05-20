@@ -66,7 +66,7 @@ public class DBQuery {
 			while (r.next()) {
 				DBObject dbObject = dbModel.primaryKey();
 				if(dbObject!=null)
-					dbObject.setObject(r.getInt(1));
+					dbObject.object(r.getInt(1));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 public class DBColumn {
 	
 	protected String name;
-	
 	protected boolean primaryKey;
 	
 	protected ArrayList<DBROneToOne> hasOne;
@@ -20,10 +19,6 @@ public class DBColumn {
 	 * Name
 	 ****************************/
 	
-	public String getName() {
-		return name;
-	}
-	
 	public String name() {
 		return name;
 	}
@@ -32,12 +27,8 @@ public class DBColumn {
 	 * PrimaryKey
 	 ****************************/
 	
-	void setPrimaryKey(boolean primaryKey) {
-		this.primaryKey = primaryKey;
-	}
-	
 	DBColumn primaryKey(boolean primaryKey) {
-		setPrimaryKey(primaryKey);
+		this.primaryKey = primaryKey;
 		return this;
 	}
 	
@@ -152,5 +143,4 @@ public class DBColumn {
 				return relations;
 		return null;
 	}
-	
 }

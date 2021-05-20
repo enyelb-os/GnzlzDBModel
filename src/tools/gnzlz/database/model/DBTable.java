@@ -161,7 +161,7 @@ public class DBTable {
 	 * DBconfiguration
 	 ***********************/
 	
-	public DBConfiguration configuration() {
+	public  DBConfiguration configuration() {
 		return configuration;
 	}
 	

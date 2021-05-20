@@ -1,43 +1,30 @@
 package tools.gnzlz.database.properties;
 
-import tools.gnzlz.database.migration.MigrationColumn;
-import tools.gnzlz.database.migration.MigrationTable;
+import tools.gnzlz.database.migration.MGColumn;
 
 import java.util.ArrayList;
 
 public class PropertiesTable {
 
-    protected MigrationTable table;
-
-    MigrationTable migrationTable() {
-        if (table == null) table = new MigrationTable();
-        return table;
-    }
-
-    /*****************
-     * table
-     *****************/
-
-    public PropertiesTable table(String table) {
-        migrationTable().table(table);
-        return this;
-    }
-
-    String table() {
-        return migrationTable().table();
-    }
+    private ArrayList<MGColumn> columns;
 
     /*****************
      * column
      *****************/
 
-    public MigrationColumn column(String column) {
-        MigrationColumn migrationColumn = new MigrationColumn().column(column);
-        migrationTable().colmun(migrationColumn);
+    public MGColumn column(String column) {
+        MGColumn migrationColumn = new MGColumn(column);
+        columns().add(migrationColumn);
         return migrationColumn;
     }
 
-    ArrayList<MigrationColumn> columns() {
-        return migrationTable().columns();
+    public MGColumn colmun(MGColumn column) {
+        columns().add(column);
+        return column;
+    }
+
+    ArrayList<MGColumn> columns() {
+        if (columns == null) columns = new ArrayList<MGColumn>();
+        return columns;
     }
 }

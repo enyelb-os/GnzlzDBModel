@@ -1,7 +1,7 @@
 package tools.gnzlz.database.properties;
 
 import tools.gnzlz.database.model.DBMigration;
-import tools.gnzlz.database.migration.IDBMigration;
+import tools.gnzlz.database.migration.interfaces.IMigration;
 
 import java.util.ArrayList;
 
@@ -18,8 +18,13 @@ public class PropertiesMigration {
 		return this;
 	}
 
-	public PropertiesMigration add(IDBMigration migration) {
+	public PropertiesMigration add(String table,IMigration migration) {
 		migrations().add(new DBMigration() {
+			@Override
+			protected String table() {
+				return table;
+			}
+
 			@Override
 			protected void initTable(PropertiesTable table) {
 				migration.initTable(table);
