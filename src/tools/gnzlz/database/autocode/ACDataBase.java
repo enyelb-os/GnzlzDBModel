@@ -2,7 +2,7 @@ package tools.gnzlz.database.autocode;
 
 import java.util.ArrayList;
 
-import tools.gnzlz.database.data.DBConfiguration;
+import tools.gnzlz.database.model.DBConfiguration;
 
 public class ACDataBase {
 

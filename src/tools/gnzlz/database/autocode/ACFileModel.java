@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 
-import tools.gnzlz.database.data.DBModel;
-import tools.gnzlz.database.data.DBTable;
+import tools.gnzlz.database.model.DBModel;
+import tools.gnzlz.database.model.DBTable;
 
 public class ACFileModel {
 	

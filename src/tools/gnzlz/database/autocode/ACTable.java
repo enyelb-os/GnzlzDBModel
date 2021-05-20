@@ -2,7 +2,7 @@ package tools.gnzlz.database.autocode;
 
 import java.util.ArrayList;
 
-import tools.gnzlz.database.data.DBModel;
+import tools.gnzlz.database.model.DBModel;
 
 public class ACTable {
 	
@@ -12,7 +12,7 @@ public class ACTable {
 	
 	final ACDataBase dataBase;
 	
-	public ACTable(String table, ACDataBase acDataBase) {
+	ACTable(String table, ACDataBase acDataBase) {
 		this.table = table;
 		this.dataBase = acDataBase;
 	}

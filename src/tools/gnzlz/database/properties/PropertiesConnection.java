@@ -1,11 +1,11 @@
 package tools.gnzlz.database.properties;
 
-import tools.gnzlz.database.data.SQLFile;
+import tools.gnzlz.database.model.SQLFile;
 
 import javax.sql.DataSource;
 import java.sql.*;
 
-public class DBPropertiesConnection {
+public class PropertiesConnection {
 
 	protected SQLFile script;
 	protected Driver driver;
@@ -40,7 +40,7 @@ public class DBPropertiesConnection {
 	 * properties
 	 *****************/
 
-	public DBPropertiesConnection properties(String properties) {
+	public PropertiesConnection properties(String properties) {
 		this.properties = properties;
 		return this;
 	}
@@ -53,7 +53,7 @@ public class DBPropertiesConnection {
 	 * drivar
 	 *****************/
 
-	public DBPropertiesConnection driver(Driver driver) {
+	public PropertiesConnection driver(Driver driver) {
 		this.driver = driver;
 		return this;
 	}
@@ -66,7 +66,7 @@ public class DBPropertiesConnection {
 	 * script
 	 *****************/
 
-	public DBPropertiesConnection script(SQLFile script) {
+	public PropertiesConnection script(SQLFile script) {
 		this.script = script;
 		return this;
 	}
@@ -79,7 +79,7 @@ public class DBPropertiesConnection {
 	 * prefix
 	 *****************/
 
-	public DBPropertiesConnection prefix(String prefix) {
+	public PropertiesConnection prefix(String prefix) {
 		this.prefix = prefix;
 		return this;
 	}
@@ -92,7 +92,7 @@ public class DBPropertiesConnection {
 	 * path
 	 *****************/
 
-	public DBPropertiesConnection path(String path) {
+	public PropertiesConnection path(String path) {
 		this.path = path;
 		return this;
 	}
@@ -105,7 +105,7 @@ public class DBPropertiesConnection {
 	 * name
 	 *****************/
 
-	public DBPropertiesConnection name(String name) {
+	public PropertiesConnection name(String name) {
 		this.name = name;
 		return this;
 	}
@@ -118,7 +118,7 @@ public class DBPropertiesConnection {
 	 * user
 	 *****************/
 
-	public DBPropertiesConnection user(String user) {
+	public PropertiesConnection user(String user) {
 		this.user = user;
 		return this;
 	}
@@ -131,7 +131,7 @@ public class DBPropertiesConnection {
 	 * password
 	 *****************/
 
-	public DBPropertiesConnection password(String password) {
+	public PropertiesConnection password(String password) {
 		this.password = password;
 		return this;
 	}
@@ -144,7 +144,7 @@ public class DBPropertiesConnection {
 	 * DataSource
 	 *****************/
 
-	public DBPropertiesConnection dataSource(DataSource dataSource) {
+	public PropertiesConnection dataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
 		return this;
 	}

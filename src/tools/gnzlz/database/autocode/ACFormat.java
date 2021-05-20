@@ -31,7 +31,7 @@ public class ACFormat {
 		return newString;
 	}
 	
-	public static String typeData(String type){
+	static String typeData(String type){
 		String split[] = type.split(" ");
 		type = split == null ? type : split[0];
 		if(type.equalsIgnoreCase("INTEGER") || type.equalsIgnoreCase("INT"))
@@ -70,7 +70,7 @@ public class ACFormat {
 		return "String";
 	}
 	
-	public static String typeValue(String type){
+	static String typeValue(String type){
 		String split[] = type.split(" ");
 		type = split == null ? type : split[0];
 		if(type.equalsIgnoreCase("INTEGER") || type.equalsIgnoreCase("INT"))
@@ -109,7 +109,7 @@ public class ACFormat {
 		return "stringValue();";
 	}
 	
-	public static String imports(String type){
+	static String imports(String type){
 		String split[] = type.split(" ");
 		type = split == null ? type : split[0];
 		

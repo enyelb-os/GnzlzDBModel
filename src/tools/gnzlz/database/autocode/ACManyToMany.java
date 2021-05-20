@@ -8,16 +8,12 @@ public class ACManyToMany {
 	private String relationForeign;
 	private String foreignKey;
 	
-	public ACManyToMany(String internalKey1, String relationInternal, String internalKey2, String relationForeign, String foreignKey) {
-		this(internalKey1, relationInternal, internalKey2, relationForeign);
-		this.foreignKey = foreignKey;
-	}
-	
-	public ACManyToMany(String internalKey1, String relationInternal, String internalKey2, String relationForeign) {
+	ACManyToMany(String internalKey1, String relationInternal, String internalKey2, String relationForeign, String foreignKey) {
 		this.internalKey1 = internalKey1;
 		this.relationInternal = relationInternal;
 		this.internalKey2 = internalKey2;
 		this.relationForeign = relationForeign;
+		this.foreignKey = foreignKey;
 	}
 	
 	String internalKey1() {

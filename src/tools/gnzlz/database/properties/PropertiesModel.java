@@ -1,6 +1,6 @@
 package tools.gnzlz.database.properties;
 
-public class DBPropertiesModel {
+public class PropertiesModel {
 
 	protected String modelPackage;
 	protected boolean refresh;
@@ -9,12 +9,12 @@ public class DBPropertiesModel {
 	 * modelPackage
 	 *****************/
 
-	public DBPropertiesModel modelPackage(String modelPackage) {
+	public PropertiesModel modelPackage(String modelPackage) {
 		this.modelPackage = modelPackage;
 		return this;
 	}
 
-	public DBPropertiesModel internalPackage(String modelPackage) {
+	PropertiesModel internalPackage(String modelPackage) {
 		return modelPackage(this.getClass().getPackage().getName()+"."+modelPackage);
 	}
 
@@ -26,7 +26,7 @@ public class DBPropertiesModel {
 	 * refresh
 	 *****************/
 
-	public DBPropertiesModel refresh(boolean refresh) {
+	public PropertiesModel refresh(boolean refresh) {
 		this.refresh = refresh;
 		return this;
 	}
