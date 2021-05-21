@@ -1,11 +1,14 @@
 package tools.gnzlz.database.model;
 
+import tools.gnzlz.database.migration.interfaces.ITypes;
+import tools.gnzlz.database.properties.PTTable;
+import tools.gnzlz.database.properties.PropertiesTable;
 import tools.gnzlz.database.properties.PropertiesTable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
-public abstract class DBMigration {
+public abstract class DBMigration implements ITypes {
 
     /*****************
      * Static
@@ -46,13 +49,26 @@ public abstract class DBMigration {
      * Constructor
      *****************/
 
-    private PropertiesTable table;
+    private PTTable table;
 
     /**************************
      * Properties Abstract
      **************************/
 
+    public abstract String tableName();
+
     protected abstract void initTable(PropertiesTable table);
 
-    protected abstract String table();
+    /*******************
+     * tableProperties
+     *******************/
+
+    public PTTable table() {
+        if(table == null) {
+            PropertiesTable propertiesTable = new PropertiesTable();
+            table = new PTTable(propertiesTable);
+            initTable(propertiesTable);
+        }
+        return table;
+    }
 }

@@ -4,12 +4,13 @@ import java.io.File;
 import java.sql.*;
 import java.util.ArrayList;
 
+import tools.gnzlz.database.properties.PTConnection;
 import tools.gnzlz.database.properties.PropertiesConnection;
 import tools.gnzlz.database.query.builder.Query;
 
 public class DBConnection{
 
-	private PropertiesConnection properties;
+	private PTConnection properties;
 	
 	/**********************
 	 * DataBaseConnection
@@ -22,7 +23,7 @@ public class DBConnection{
 	 ***********************/
 
 	public DBConnection(PropertiesConnection properties){
-		this.properties = properties;
+		this.properties = new PTConnection(properties);
 		if(this.properties.driver() != null)
 			try {
 				DriverManager.registerDriver(this.properties.driver());
@@ -39,7 +40,7 @@ public class DBConnection{
 	private void createDataBaseifFile() {
 		String file = "";
 		if(properties.path() != null) file = properties.path();
-		if(properties.name() != null) file = file + properties.name();
+		if(properties.dbname() != null) file = file + properties.dbname();
 		if(!new File(file).exists())
 	        try {
 	        	open();
@@ -113,8 +114,8 @@ public class DBConnection{
 		try {
 			open();
             DatabaseMetaData metaData = connection.getMetaData();
-            if(debug) System.out.println("searching the tables in the database: " + properties.name());
-			ResultSet r = metaData.getTables(properties.name(), null, "%", new String[]{"TABLE"});
+            if(debug) System.out.println("searching the tables in the database: " + properties.dbname());
+			ResultSet r = metaData.getTables(properties.dbname(), null, "%", new String[]{"TABLE"});
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
 				dbModel.initColumns(r);
@@ -225,7 +226,7 @@ public class DBConnection{
 		exportedKeys(table).stream().forEach((db)->{
 			importedKeys(db.get("FKTABLE_NAME").stringValue()).stream().forEach((dbf)->{
 				if(!dbf.get("PKTABLE_NAME").stringValue().equals(table)){
-					if(nDebug) System.out.println("database: " + properties.name() + " | searching relationships many to many (" + table +", "+db.get("FKTABLE_NAME").object+", "+dbf.get("PKTABLE_NAME").object+")");
+					if(nDebug) System.out.println("database: " + properties.dbname() + " | searching relationships many to many (" + table +", "+db.get("FKTABLE_NAME").object+", "+dbf.get("PKTABLE_NAME").object+")");
 					DBModel dbModel = DBModel.create(DBModel.class);
 					dbModel.set("PKCOLUMN_NAME", db.get("PKCOLUMN_NAME").object);
 					dbModel.set("PKTABLE_NAME", db.get("PKTABLE_NAME").object);

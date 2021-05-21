@@ -20,8 +20,7 @@ public class PropertiesMigration {
 
 	public PropertiesMigration add(String table,IMigration migration) {
 		migrations().add(new DBMigration() {
-			@Override
-			protected String table() {
+			public String tableName() {
 				return table;
 			}
 

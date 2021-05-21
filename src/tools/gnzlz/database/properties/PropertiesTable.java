@@ -1,12 +1,13 @@
 package tools.gnzlz.database.properties;
 
 import tools.gnzlz.database.migration.MGColumn;
+import tools.gnzlz.database.migration.interfaces.Type;
 
 import java.util.ArrayList;
 
 public class PropertiesTable {
 
-    private ArrayList<MGColumn> columns;
+    protected ArrayList<MGColumn> columns;
 
     /*****************
      * column
@@ -18,9 +19,34 @@ public class PropertiesTable {
         return migrationColumn;
     }
 
-    public MGColumn colmun(MGColumn column) {
-        columns().add(column);
-        return column;
+    public MGColumn primaryKey(String column) {
+        MGColumn migrationColumn = new MGColumn(column,true);
+        columns().add(migrationColumn);
+        return migrationColumn;
+    }
+
+    public MGColumn unique(String column) {
+        MGColumn migrationColumn = new MGColumn(column,false,false,true);
+        columns().add(migrationColumn);
+        return migrationColumn;
+    }
+
+    public MGColumn column(String column, Type type) {
+        MGColumn migrationColumn = new MGColumn(column).type(type);
+        columns().add(migrationColumn);
+        return migrationColumn;
+    }
+
+    public MGColumn primaryKey(String column, Type type) {
+        MGColumn migrationColumn = new MGColumn(column,true).type(type);
+        columns().add(migrationColumn);
+        return migrationColumn;
+    }
+
+    public MGColumn unique(String column, Type type) {
+        MGColumn migrationColumn = new MGColumn(column,false,false,true).type(type);
+        columns().add(migrationColumn);
+        return migrationColumn;
     }
 
     ArrayList<MGColumn> columns() {

@@ -4,10 +4,7 @@ import tools.gnzlz.database.model.SQLFile;
 
 import javax.sql.DataSource;
 import java.sql.Driver;
-import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
 
 public class PropertiesConnection {
 
@@ -15,36 +12,17 @@ public class PropertiesConnection {
 	protected Driver driver;
 	protected String prefix;
 	protected String path;
-	protected String name;
+	protected String dbname;
 	protected String user;
 	protected String password;
 	protected Hashtable<String,String> properties;
-	protected StringBuilder url;
 	protected DataSource dataSource;
-
-	/*****************
-	 * Url
-	 *****************/
-
-	public StringBuilder url() {
-		if(url == null) url = urlRefresh();
-		return url;
-	}
-
-	public StringBuilder urlRefresh() {
-		url = new StringBuilder();
-		if(prefix != null) url.append(prefix);
-		if(path != null) url.append(path);
-		if(name != null) url.append(name);
-		if(properties != null) url.append(propertiesToString());
-		return url;
-	}
 
 	/*****************
 	 * properties
 	 *****************/
 
-	private Hashtable<String,String> properties(){
+	Hashtable<String,String> properties(){
 		if(properties == null) properties = new Hashtable<String, String>();
 		return properties;
 	}
@@ -52,20 +30,6 @@ public class PropertiesConnection {
 	public PropertiesConnection property(String key, String value) {
 		properties().put(key,value);
 		return this;
-	}
-
-	public String propertiesToString() {
-
-		if(properties != null) {
-			StringBuilder string = new StringBuilder();
-			int i = 0;
-			for (Map.Entry<String, String> entry : properties().entrySet()) {
-				string.append(i == 0 ? "?" : "&").append(entry.getKey()).append("=").append(entry.getValue());
-				i++;
-			}
-			return string.toString();
-		}
-		return "";
 	}
 
 	/*****************
@@ -77,10 +41,6 @@ public class PropertiesConnection {
 		return this;
 	}
 
-	public Driver driver() {
-		return driver;
-	}
-
 	/*****************
 	 * script
 	 *****************/
@@ -88,10 +48,6 @@ public class PropertiesConnection {
 	public PropertiesConnection script(SQLFile script) {
 		this.script = script;
 		return this;
-	}
-
-	public SQLFile script() {
-		return script;
 	}
 
 	/*****************
@@ -103,10 +59,6 @@ public class PropertiesConnection {
 		return this;
 	}
 
-	public String prefix() {
-		return prefix;
-	}
-
 	/*****************
 	 * path
 	 *****************/
@@ -116,21 +68,13 @@ public class PropertiesConnection {
 		return this;
 	}
 
-	public String path() {
-		return path;
-	}
-
 	/*****************
 	 * name
 	 *****************/
 
-	public PropertiesConnection name(String name) {
-		this.name = name;
+	public PropertiesConnection dbname(String name) {
+		this.dbname = name;
 		return this;
-	}
-
-	public String name() {
-		return name;
 	}
 
 	/*****************
@@ -142,10 +86,6 @@ public class PropertiesConnection {
 		return this;
 	}
 
-	public String user() {
-		return user;
-	}
-
 	/*****************
 	 * password
 	 *****************/
@@ -155,10 +95,6 @@ public class PropertiesConnection {
 		return this;
 	}
 
-	public String password() {
-		return password;
-	}
-
 	/*****************
 	 * DataSource
 	 *****************/
@@ -166,9 +102,5 @@ public class PropertiesConnection {
 	public PropertiesConnection dataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
 		return this;
-	}
-
-	public DataSource dataSource() {
-		return dataSource;
 	}
 }

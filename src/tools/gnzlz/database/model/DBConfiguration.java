@@ -1,13 +1,12 @@
 package tools.gnzlz.database.model;
 
-import tools.gnzlz.database.properties.PropertiesConnection;
-import tools.gnzlz.database.properties.PropertiesMigration;
-import tools.gnzlz.database.properties.PropertiesModel;
+import tools.gnzlz.database.migration.interfaces.ITypes;
+import tools.gnzlz.database.properties.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
-public abstract class DBConfiguration {
+public abstract class DBConfiguration implements ITypes {
 	
 	/*****************
 	 * Static
@@ -49,10 +48,11 @@ public abstract class DBConfiguration {
 	 *****************/
 
 	private DBConnection connection;
-	private PropertiesModel model;
-	private PropertiesMigration migration;
+	private PTModel model;
+	private PTMigration migration;
 
-	public DBConfiguration(){}
+	public DBConfiguration(){
+	}
 
 	/**************************
 	 * DBProperties Abstract
@@ -81,10 +81,11 @@ public abstract class DBConfiguration {
 	 * ModelProperties
 	 *******************/
 
-	PropertiesModel model() {
+	public PTModel model() {
 		if(model == null) {
-			model = new PropertiesModel();
-			initModel(model);
+			PropertiesModel propertiesModel = new PropertiesModel();
+			model = new PTModel(propertiesModel);
+			initModel(propertiesModel);
 		}
 		return model;
 	}
@@ -93,11 +94,24 @@ public abstract class DBConfiguration {
 	 * MigrationProperties
 	 **********************/
 
-	public PropertiesMigration migration() {
+	public PTMigration migration() {
 		if(migration == null) {
-			migration = new PropertiesMigration();
-			initMigration(migration);
+			PropertiesMigration propertiesMigration = new PropertiesMigration();
+			migration = new PTMigration(propertiesMigration);
+			initMigration(propertiesMigration);
 		}
 		return migration;
+	}
+
+	@Override
+	public String toString() {
+		if(migration().migrations()!=null)
+			migration().migrations().forEach(m -> {
+				System.out.println("migration -> " + m.tableName());
+				m.table().columns().forEach(c->{
+					System.out.println("\t" + c.toString());
+				});
+			});
+		return "";
 	}
 }

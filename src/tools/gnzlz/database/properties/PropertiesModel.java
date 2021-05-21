@@ -14,12 +14,8 @@ public class PropertiesModel {
 		return this;
 	}
 
-	PropertiesModel internalPackage(String modelPackage) {
+	public PropertiesModel internalPackage(String modelPackage) {
 		return modelPackage(this.getClass().getPackage().getName()+"."+modelPackage);
-	}
-
-	public String modelPackage() {
-		return modelPackage;
 	}
 
 	/*****************
@@ -29,9 +25,5 @@ public class PropertiesModel {
 	public PropertiesModel refresh(boolean refresh) {
 		this.refresh = refresh;
 		return this;
-	}
-
-	public boolean refresh() {
-		return refresh;
 	}
 }
