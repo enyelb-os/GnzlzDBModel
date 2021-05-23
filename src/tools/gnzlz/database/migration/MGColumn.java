@@ -11,6 +11,7 @@ public class MGColumn {
     private boolean unique;
     private boolean autoincrement;
     private boolean notNull;
+    private String length;
     private Number max;
     private Number min;
     private String isDefault;
@@ -66,6 +67,23 @@ public class MGColumn {
     }
 
     /*****************
+     * autoincrement
+     *****************/
+
+    public boolean isAutoincrement() {
+        return autoincrement;
+    }
+
+
+    /*****************
+     * unique
+     *****************/
+
+    public boolean isUnique() {
+        return unique;
+    }
+
+    /*****************
      * notNull
      *****************/
 
@@ -92,6 +110,24 @@ public class MGColumn {
     }
 
     /*****************
+     * length
+     *****************/
+
+    public MGColumn length(String length) {
+        this.length = length;
+        return this;
+    }
+
+    public MGColumn length(int length) {
+        this.length = String.valueOf(length);
+        return this;
+    }
+
+    public String length() {
+        return length;
+    }
+
+    /*****************
      * foreignKey
      *****************/
 
@@ -108,20 +144,5 @@ public class MGColumn {
 
     public MGForeignKey foreignKey() {
         return foreignKey;
-    }
-
-    @Override
-    public String toString() {
-        return "Column ->" + column +  "{ " +
-                " type=" + type +
-                ", primaryKey=" + primaryKey +
-                ", unique=" + unique +
-                ", autoincrement=" + autoincrement +
-                ", notNull=" + notNull +
-                ", max=" + max +
-                ", min=" + min +
-                ", isDefault='" + isDefault + '\'' +
-                (foreignKey == null ? "" : ", foreignKey=" + foreignKey.toString()) +
-                '}';
     }
 }

@@ -20,18 +20,30 @@ public class PTConnection {
 	 * Url
 	 *****************/
 
-	public StringBuilder url() {
-		if(url == null) url = urlRefresh();
+	public StringBuilder urlDB() {
+		if(url == null) url = urlDBRefresh();
 		return url;
 	}
 
-	public StringBuilder urlRefresh() {
+	public StringBuilder urlDBRefresh() {
 		url = new StringBuilder();
 		if(connection.prefix != null) url.append(connection.prefix);
 		if(connection.path != null) url.append(connection.path);
 		if(connection.dbname != null) url.append(connection.dbname);
 		if(connection.properties != null) url.append(propertiesToString());
 		return url;
+	}
+
+	/*****************
+	 * UrlHost
+	 *****************/
+
+	public String urlHost() {
+		StringBuilder url = new StringBuilder();
+		if(connection.prefix != null) url.append(connection.prefix);
+		if(connection.path != null) url.append(connection.path);
+		if(connection.properties != null) url.append(propertiesToString());
+		return url.toString();
 	}
 
 	/*****************

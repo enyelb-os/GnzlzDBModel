@@ -1,8 +1,6 @@
 package tools.gnzlz.database.model;
 
-import java.util.ArrayList;
-
-import tools.gnzlz.database.query.Select;
+import tools.gnzlz.database.query.model.Select;
 
 public class DBROneToOne {
 	

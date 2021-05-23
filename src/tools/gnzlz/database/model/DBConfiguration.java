@@ -2,6 +2,7 @@ package tools.gnzlz.database.model;
 
 import tools.gnzlz.database.migration.interfaces.ITypes;
 import tools.gnzlz.database.properties.*;
+import tools.gnzlz.database.query.migration.CreateTable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -52,6 +53,11 @@ public abstract class DBConfiguration implements ITypes {
 	private PTMigration migration;
 
 	public DBConfiguration(){
+		if(migration().migrations() != null)
+			migration().migrations().forEach(m -> {
+				ArrayList<DBModel<?>> dbModels = connection().tables();
+				connection().migrate(m,dbModels);
+			});
 	}
 
 	/**************************
@@ -101,17 +107,5 @@ public abstract class DBConfiguration implements ITypes {
 			initMigration(propertiesMigration);
 		}
 		return migration;
-	}
-
-	@Override
-	public String toString() {
-		if(migration().migrations()!=null)
-			migration().migrations().forEach(m -> {
-				System.out.println("migration -> " + m.tableName());
-				m.table().columns().forEach(c->{
-					System.out.println("\t" + c.toString());
-				});
-			});
-		return "";
 	}
 }

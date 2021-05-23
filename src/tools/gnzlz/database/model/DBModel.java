@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
-import tools.gnzlz.database.query.Delete;
-import tools.gnzlz.database.query.Insert;
-import tools.gnzlz.database.query.Select;
-import tools.gnzlz.database.query.Update;
-import tools.gnzlz.database.query.builder.Query;
+import tools.gnzlz.database.query.model.Delete;
+import tools.gnzlz.database.query.model.Insert;
+import tools.gnzlz.database.query.model.Select;
+import tools.gnzlz.database.query.model.Update;
+import tools.gnzlz.database.query.model.builder.Query;
 
 public class DBModel<M extends DBModel<?>>{
 	

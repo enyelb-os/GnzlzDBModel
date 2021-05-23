@@ -30,5 +30,10 @@ public enum Type {
     BLOB,
     ARRAY,
     REF,
-    STRUCT
+    STRUCT;
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }

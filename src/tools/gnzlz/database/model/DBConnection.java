@@ -6,7 +6,9 @@ import java.util.ArrayList;
 
 import tools.gnzlz.database.properties.PTConnection;
 import tools.gnzlz.database.properties.PropertiesConnection;
-import tools.gnzlz.database.query.builder.Query;
+import tools.gnzlz.database.query.migration.CreateDB;
+import tools.gnzlz.database.query.migration.CreateTable;
+import tools.gnzlz.database.query.model.builder.Query;
 
 public class DBConnection{
 
@@ -30,26 +32,48 @@ public class DBConnection{
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-		createDataBaseifFile();
+		createDataBaseifNoExists();
 	}
 	
 	/**********************
-	 * Create db if is file
+	 * Create db
 	 **********************/
 	
-	private void createDataBaseifFile() {
+	private void createDataBaseifNoExists() {
+		try {
+			boolean loadScript = !dbIsFile();
+			open();
+			connection.getMetaData();
+			boolean dbIsFile = dbIsFile();
+			if(dbIsFile && loadScript){
+				executeScriptInitial();
+			}else if(!dbIsFile && connection.getCatalog() == null){
+				createDB();
+			}
+			close();
+		} catch (SQLException e) {
+			createDB();
+		}
+	}
+
+	private void createDB(){
+		open();
+		CreateDB createDB = CreateDB.create().database(properties.dbname());
+		connection = null;
+		open(properties.urlHost());
+		query(createDB.query()).execute();
+		if(connection != null) {
+			connection = null;
+			executeScriptInitial();
+		}
+		close();
+	}
+
+	private boolean dbIsFile(){
 		String file = "";
 		if(properties.path() != null) file = properties.path();
 		if(properties.dbname() != null) file = file + properties.dbname();
-		if(!new File(file).exists())
-	        try {
-	        	open();
-	            connection.getMetaData();
-	            executeScriptInitial();
-	            close();
-	        } catch (SQLException e) {
-	            System.err.println(e.getMessage());
-	        }
+		return new File(file).exists();
 	}
 	
 	/**********************
@@ -70,18 +94,20 @@ public class DBConnection{
 	/**********************
 	 * Open
 	 **********************/
-	
+
 	public synchronized DBConnection open(){
+		return open(properties.urlDB().toString());
+	}
+	
+	private synchronized DBConnection open(String url){
 		try {
 			if((connection == null || connection.isClosed())) {
 				if(properties.user() !=null && properties.password() !=null)
-					connection = connection(properties.user(), properties.password());
+					connection = connection(url,properties.user(), properties.password());
 				else if(properties.user() != null)
-					connection = connection(properties.user(), "");
+					connection = connection(url,properties.user(), "");
 				else
-					connection = connection();
-
-				System.out.println(connection.getSchema());
+					connection = connection(url);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -89,18 +115,51 @@ public class DBConnection{
 		return this;
 	}
 
-	private Connection connection() throws SQLException {
+	private Connection connection(String url) throws SQLException {
 		if(properties.dataSource() != null)
 			return properties.dataSource().getConnection();
 		else
-			return DriverManager.getConnection(properties.url().toString());
+			return DriverManager.getConnection(url);
 	}
 
-	private Connection connection(String user, String password) throws SQLException {
+	private Connection connection(String url,String user, String password) throws SQLException {
 		if(properties.dataSource() != null)
 			return properties.dataSource().getConnection(user,password);
 		else
-			return DriverManager.getConnection(properties.url().toString(),user,password);
+			return DriverManager.getConnection(url,user,password);
+	}
+
+	/**********************
+	 * migrate
+	 **********************/
+
+	public synchronized void migrate(DBMigration migration){
+		migrate(migration,tables());
+	}
+
+	synchronized void migrate(DBMigration migration, ArrayList<DBModel<?>> dbModels){
+		boolean exists = false;
+		for (DBModel<?> table: dbModels) {
+			if (table.get("TABLE_NAME").stringValue().equalsIgnoreCase(migration.tableName())){
+				exists = true;
+			}
+		}
+
+		if(!exists){
+			CreateTable queryTable = CreateTable.create();
+			queryTable.table(migration.tableName());
+			migration.table().columns().forEach(c->{
+				queryTable.column(c.column()).type(c.type().toString()).length(c.length()).isDefault(c.isDefault());
+				if(c.isPrimaryKey()) queryTable.primaryKey();
+				if(c.isAutoincrement()) queryTable.autoincrement();
+				if(c.isNotNull()) queryTable.notNull();
+				if(c.isUnique()) queryTable.unique();
+				if(c.foreignKey() != null) queryTable.foreignKey(c.foreignKey().table(),c.foreignKey().column());
+			});
+			query(queryTable.query()).execute();
+		}else{
+			//update
+		}
 	}
 	
 	/**********************
@@ -126,7 +185,7 @@ public class DBConnection{
 		}
 		return dbModels;
 	}
-	
+
 	/**********************
 	 * columns
 	 **********************/
@@ -281,7 +340,8 @@ public class DBConnection{
 	
 	public void close(){
 		try {
-			connection.close();
+			if(connection != null && !connection.isClosed())
+				connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

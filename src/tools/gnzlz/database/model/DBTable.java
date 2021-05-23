@@ -2,7 +2,7 @@ package tools.gnzlz.database.model;
 
 import java.util.ArrayList;
 
-import tools.gnzlz.database.query.builder.Query;
+import tools.gnzlz.database.query.model.builder.Query;
 
 public class DBTable {
 	
