@@ -14,10 +14,6 @@ public class PropertiesModel {
 		return this;
 	}
 
-	public PropertiesModel internalPackage(String modelPackage) {
-		return modelPackage(this.getClass().getPackage().getName()+"."+modelPackage);
-	}
-
 	/*****************
 	 * refresh
 	 *****************/

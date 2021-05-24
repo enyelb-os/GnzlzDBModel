@@ -1,16 +1,25 @@
 package tools.gnzlz.database.query.migration.builder.data;
 
+import tools.gnzlz.database.query.migration.builder.Query;
+
 import java.util.ArrayList;
 
 public class GCreateTable {
 
+	private Query<?> query;
+
 	private String column;
 	private ArrayList<DColumn> columns;
 	private String table;
+
+	public GCreateTable(Query<?> query) {
+		this.query = query;
+	}
 	
 	/***************************
 	 * insert
 	 ***************************/
+
 	public ArrayList<DColumn> columns() {
 		if(columns == null ) columns = new ArrayList<DColumn>();
 		return columns;
@@ -22,7 +31,7 @@ public class GCreateTable {
 				if(dColumn.column.equalsIgnoreCase(column))
 					return dColumn;
 
-			DColumn dColumn = new DColumn(column);
+			DColumn dColumn = new DColumn(column,query);
 			this.columns().add(dColumn);
 			return dColumn;
 		}

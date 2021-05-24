@@ -4,6 +4,7 @@ import java.io.File;
 import java.sql.*;
 import java.util.ArrayList;
 
+import tools.gnzlz.database.autocode.ACDataBase;
 import tools.gnzlz.database.properties.PTConnection;
 import tools.gnzlz.database.properties.PropertiesConnection;
 import tools.gnzlz.database.query.migration.CreateDB;
@@ -13,18 +14,15 @@ import tools.gnzlz.database.query.model.builder.Query;
 public class DBConnection{
 
 	private PTConnection properties;
-	
-	/**********************
-	 * DataBaseConnection
-	 **********************/
-
+	private DBConfiguration configuration;
 	private Connection connection;
 
 	/***********************
 	 * constructor
 	 ***********************/
 
-	public DBConnection(PropertiesConnection properties){
+	public DBConnection(PropertiesConnection properties, DBConfiguration configuration){
+		this.configuration = configuration;
 		this.properties = new PTConnection(properties);
 		if(this.properties.driver() != null)
 			try {
@@ -43,31 +41,38 @@ public class DBConnection{
 		try {
 			boolean loadScript = !dbIsFile();
 			open();
-			connection.getMetaData();
+			if (connection !=null) connection.getMetaData(); // create database if file
 			boolean dbIsFile = dbIsFile();
 			if(dbIsFile && loadScript){
+				migrate(configuration.migration().migrations());
 				executeScriptInitial();
-			}else if(!dbIsFile && connection.getCatalog() == null){
+			}else if( connection == null || (!dbIsFile && connection.getCatalog() == null)){
 				createDB();
 			}
 			close();
 		} catch (SQLException e) {
-			createDB();
+			System.out.println(e.getMessage());
 		}
 	}
 
+	/**********************
+	 * Create db
+	 **********************/
+
 	private void createDB(){
-		open();
-		CreateDB createDB = CreateDB.create().database(properties.dbname());
-		connection = null;
-		open(properties.urlHost());
-		query(createDB.query()).execute();
+		openForce(properties.urlHost());
+		query(CreateDB.create().database(properties.dbname())).execute();
 		if(connection != null) {
-			connection = null;
+			openForce();
+			migrate(configuration.migration().migrations());
 			executeScriptInitial();
 		}
 		close();
 	}
+
+	/**********************
+	 * Create db
+	 **********************/
 
 	private boolean dbIsFile(){
 		String file = "";
@@ -82,7 +87,7 @@ public class DBConnection{
 	
 	private void executeScriptInitial() {
 		try {
-        	open();
+        	openForce();
         	if(properties.script() != null && properties.script().script() != null)
             	for (String sql : properties.script().script())
             		if(!connection.prepareStatement(sql).execute()) System.out.println(sql);
@@ -110,10 +115,28 @@ public class DBConnection{
 					connection = connection(url);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 		return this;
 	}
+
+	/**********************
+	 * OpenForce
+	 **********************/
+
+	public synchronized DBConnection openForce(){
+		return openForce(properties.urlDB().toString());
+	}
+
+	public synchronized DBConnection openForce(String url){
+		close();
+		connection = null;
+		return open(url);
+	}
+
+	/**********************
+	 * connection
+	 **********************/
 
 	private Connection connection(String url) throws SQLException {
 		if(properties.dataSource() != null)
@@ -137,7 +160,20 @@ public class DBConnection{
 		migrate(migration,tables());
 	}
 
-	synchronized void migrate(DBMigration migration, ArrayList<DBModel<?>> dbModels){
+	synchronized void migrate(ArrayList<DBMigration> migrations){
+		if(migrations != null && !migrations.isEmpty()) {
+			ArrayList<String> newTables = new ArrayList<String>();
+			ArrayList<DBModel<?>> tables = tables();
+			migrations.forEach(m -> {
+				if(migrate(m, tables))
+					newTables.add(m.tableName());
+			});
+
+			ACDataBase.autocode(this,newTables);
+		}
+	}
+
+	synchronized boolean migrate(DBMigration migration, ArrayList<DBModel<?>> dbModels){
 		boolean exists = false;
 		for (DBModel<?> table: dbModels) {
 			if (table.get("TABLE_NAME").stringValue().equalsIgnoreCase(migration.tableName())){
@@ -156,10 +192,12 @@ public class DBConnection{
 				if(c.isUnique()) queryTable.unique();
 				if(c.foreignKey() != null) queryTable.foreignKey(c.foreignKey().table(),c.foreignKey().column());
 			});
-			query(queryTable.query()).execute();
+			return query(queryTable).execute();
 		}else{
 			//update
 		}
+
+		return false;
 	}
 	
 	/**********************
@@ -174,7 +212,7 @@ public class DBConnection{
 			open();
             DatabaseMetaData metaData = connection.getMetaData();
             if(debug) System.out.println("searching the tables in the database: " + properties.dbname());
-			ResultSet r = metaData.getTables(properties.dbname(), null, "%", new String[]{"TABLE"});
+			ResultSet r = metaData.getTables(connection.getCatalog(), null, "%", new String[]{"TABLE"});
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
 				dbModel.initColumns(r);
@@ -306,10 +344,10 @@ public class DBConnection{
 	 * Query
 	 **********************/
 	
-	public DBQuery query(Query<?> query){
+	public DBQuery query(tools.gnzlz.database.query.model.builder.Query<?> query){
         try {
         	open();
-        	DBQuery dbQuery = new DBQuery(connection.prepareStatement(query.query(),Statement.RETURN_GENERATED_KEYS));
+        	DBQuery dbQuery = new DBQuery(connection.prepareStatement(query.dialect(properties.dialect()).query(),Statement.RETURN_GENERATED_KEYS));
         	Object [] objects = query.objects();
         	for (int i = 0; i < objects.length; i++)
         		dbQuery.value(i+1, objects[i]);
@@ -318,6 +356,17 @@ public class DBConnection{
 			e.printStackTrace();
 		}
         return null;
+	}
+
+	public DBQuery query(tools.gnzlz.database.query.migration.builder.Query<?> query){
+		try {
+			open();
+			DBQuery dbQuery = new DBQuery(connection.prepareStatement(query.dialect(properties.dialect()).query(),Statement.RETURN_GENERATED_KEYS));
+			return dbQuery;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	/**********************
@@ -338,7 +387,7 @@ public class DBConnection{
 	 * Close
 	 **********************/
 	
-	public void close(){
+	public synchronized void close(){
 		try {
 			if(connection != null && !connection.isClosed())
 				connection.close();
@@ -346,4 +395,13 @@ public class DBConnection{
 			e.printStackTrace();
 		}
 	}
+
+	/**********************
+	 * configuration
+	 **********************/
+
+	public DBConfiguration configuration() {
+		return configuration;
+	}
+
 }

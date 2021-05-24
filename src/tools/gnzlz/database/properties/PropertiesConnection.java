@@ -1,6 +1,7 @@
 package tools.gnzlz.database.properties;
 
 import tools.gnzlz.database.model.SQLFile;
+import tools.gnzlz.database.model.interfaces.Dialect;
 
 import javax.sql.DataSource;
 import java.sql.Driver;
@@ -8,6 +9,7 @@ import java.util.Hashtable;
 
 public class PropertiesConnection {
 
+	protected Dialect dialect = Dialect.MySQL;
 	protected SQLFile script;
 	protected Driver driver;
 	protected String prefix;
@@ -17,6 +19,15 @@ public class PropertiesConnection {
 	protected String password;
 	protected Hashtable<String,String> properties;
 	protected DataSource dataSource;
+
+	/*****************
+	 * dialect
+	 *****************/
+
+	public PropertiesConnection dialect(Dialect dialect) {
+		this.dialect = dialect;
+		return this;
+	}
 
 	/*****************
 	 * properties

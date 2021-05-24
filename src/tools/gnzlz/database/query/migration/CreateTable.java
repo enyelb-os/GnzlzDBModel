@@ -20,7 +20,7 @@ public class CreateTable extends Query<CreateTable> implements ICreateTable<Crea
 	
 	@Override
 	public GCreateTable gCreateTable() {
-		if(dInsert == null) dInsert = new GCreateTable();
+		if(dInsert == null) dInsert = new GCreateTable(this);
 		return dInsert;
 	}
 	

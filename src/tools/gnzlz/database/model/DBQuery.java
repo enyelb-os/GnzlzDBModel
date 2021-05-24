@@ -30,11 +30,13 @@ public class DBQuery {
 	 * Execute
 	 **********************/
 	
-	public void execute(){
+	public boolean execute(){
 		try {
 			sql.execute();
+			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
+			return false;
 		}
 	}
 	

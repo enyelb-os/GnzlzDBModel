@@ -5,7 +5,7 @@ public class PTModel {
 	protected PropertiesModel model;
 
 	public PTModel(PropertiesModel model){
-		model = model;
+		this.model = model;
 	}
 
 	/*****************

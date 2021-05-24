@@ -1,13 +1,17 @@
 package tools.gnzlz.database.model;
 
 import tools.gnzlz.database.migration.interfaces.ITypes;
-import tools.gnzlz.database.properties.*;
-import tools.gnzlz.database.query.migration.CreateTable;
+import tools.gnzlz.database.model.interfaces.IDialects;
+import tools.gnzlz.database.properties.PTModel;
+import tools.gnzlz.database.properties.PTMigration;
+import tools.gnzlz.database.properties.PropertiesConnection;
+import tools.gnzlz.database.properties.PropertiesMigration;
+import tools.gnzlz.database.properties.PropertiesModel;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
-public abstract class DBConfiguration implements ITypes {
+public abstract class DBConfiguration implements ITypes, IDialects {
 	
 	/*****************
 	 * Static
@@ -52,12 +56,8 @@ public abstract class DBConfiguration implements ITypes {
 	private PTModel model;
 	private PTMigration migration;
 
-	public DBConfiguration(){
-		if(migration().migrations() != null)
-			migration().migrations().forEach(m -> {
-				ArrayList<DBModel<?>> dbModels = connection().tables();
-				connection().migrate(m,dbModels);
-			});
+	protected DBConfiguration(){
+		connection();
 	}
 
 	/**************************
@@ -78,7 +78,7 @@ public abstract class DBConfiguration implements ITypes {
 		if(connection == null) {
 			PropertiesConnection propertiesConnection = new PropertiesConnection();
 			initConnection(propertiesConnection);
-			connection = new DBConnection(propertiesConnection);
+			connection = new DBConnection(propertiesConnection, this);
 		}
 		return connection;
 	}
@@ -100,12 +100,20 @@ public abstract class DBConfiguration implements ITypes {
 	 * MigrationProperties
 	 **********************/
 
-	public PTMigration migration() {
+	PTMigration migration() {
 		if(migration == null) {
 			PropertiesMigration propertiesMigration = new PropertiesMigration();
 			migration = new PTMigration(propertiesMigration);
 			initMigration(propertiesMigration);
 		}
 		return migration;
+	}
+
+	/**********************
+	 * MigrationProperties
+	 **********************/
+
+	public void migrate() {
+		connection().migrate(migration().migrations());
 	}
 }

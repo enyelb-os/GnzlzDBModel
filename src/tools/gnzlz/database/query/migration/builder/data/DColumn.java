@@ -1,6 +1,12 @@
 package tools.gnzlz.database.query.migration.builder.data;
 
+import tools.gnzlz.database.model.interfaces.Dialect;
+import tools.gnzlz.database.model.interfaces.IDialects;
+import tools.gnzlz.database.query.migration.builder.Query;
+
 public class DColumn {
+
+	private Query<?> query;
 
 	public String column;
 	public String type;
@@ -14,8 +20,9 @@ public class DColumn {
 	public String isDefault;
 	public DForeignKey foreignKey;
 	
-	public DColumn(String column) {
+	public DColumn(String column,Query<?> query) {
 		this.column = column;
+		this.query = query;
 	}
 
 	public String isPrimaryKey() {
@@ -23,7 +30,10 @@ public class DColumn {
 	}
 
 	public String isAutoincrement() {
-		return autoincrement ? " AUTO_INCREMENT":"";
+		return autoincrement ? (
+					query.dialect() == Dialect.SQLite ? " AUTOINCREMENT" :
+											  " AUTO_INCREMENT"
+		):"";
 	}
 
 	public String isNotNull() {
@@ -55,6 +65,6 @@ public class DColumn {
 
 	@Override
 	public String toString() {
-		return column;
+		return column();
 	}
 }

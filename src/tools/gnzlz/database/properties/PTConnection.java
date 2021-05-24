@@ -1,6 +1,7 @@
 package tools.gnzlz.database.properties;
 
 import tools.gnzlz.database.model.SQLFile;
+import tools.gnzlz.database.model.interfaces.Dialect;
 
 import javax.sql.DataSource;
 import java.sql.Driver;
@@ -44,6 +45,14 @@ public class PTConnection {
 		if(connection.path != null) url.append(connection.path);
 		if(connection.properties != null) url.append(propertiesToString());
 		return url.toString();
+	}
+
+	/*****************
+	 * dialect
+	 *****************/
+
+	public Dialect dialect(){
+		return connection.dialect;
 	}
 
 	/*****************

@@ -1,5 +1,6 @@
 package tools.gnzlz.database.query.migration.builder;
 
+import tools.gnzlz.database.model.interfaces.Dialect;
 import tools.gnzlz.database.query.migration.builder.data.GCreateTable;
 
 public interface ICreateTable<Type extends Query<?>> extends IColumn<Type> {
@@ -27,7 +28,13 @@ public interface ICreateTable<Type extends Query<?>> extends IColumn<Type> {
 			throw new RuntimeException("Create error invalid table");
 		else
 			str.append(" ").append(gCreateTable().table());
+
+		str.append(" (").append(System.lineSeparator()).append(generateColumns()).append(System.lineSeparator()).append(")");
+
+		if (type().dialect() == Dialect.MySQL){
+			str.append(" ENGINE=InnoDB");
+		}
 		
-		return str.append(" (").append(System.lineSeparator()).append(generateColumns()).append(System.lineSeparator()).append(");");
+		return str;
 	}
 }
