@@ -14,7 +14,7 @@ public class PropertiesMigration {
 	 *****************/
 
 	public <M extends DBMigration> PropertiesMigration add(Class<M> migration) {
-		migrations().add(DBMigration.create(migration));
+		migrations().add(DBMigration.migration(migration));
 		return this;
 	}
 

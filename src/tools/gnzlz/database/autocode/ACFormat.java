@@ -88,7 +88,7 @@ public class ACFormat {
 		if(type.equalsIgnoreCase("DECIMAL") || type.equalsIgnoreCase("DOUBLE"))
 			return "doubleValue();";
 		if(type.equalsIgnoreCase("NUMERIC"))
-			return "decimalValue()";
+			return "decimalValue();";
 		if(type.equalsIgnoreCase("VARBINARY") || type.equalsIgnoreCase("BINARY"))
 			return "byteArrayValue();";
 		if(type.equalsIgnoreCase("DATETIME") || type.equalsIgnoreCase("DATE") || type.equalsIgnoreCase("TIME") || type.equalsIgnoreCase("TIMESTAMP"))

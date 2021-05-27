@@ -31,7 +31,8 @@ public class DColumn {
 
 	public String isAutoincrement() {
 		return autoincrement ? (
-					query.dialect() == Dialect.SQLite ? " AUTOINCREMENT" :
+				query.dialect() == Dialect.PostgreSQL ? "" :
+				query.dialect() == Dialect.SQLite ? " AUTOINCREMENT" :
 											  " AUTO_INCREMENT"
 		):"";
 	}
@@ -52,8 +53,12 @@ public class DColumn {
 		return isDefault == null ? "" : " DEFAULT ".concat(isDefault);
 	}
 
+	public String type(){
+		return primaryKey && query.dialect() == Dialect.PostgreSQL ? "SERIAL" : type;
+	}
+
 	public String column() {
-		return column.concat(" ").concat(type).concat(isLength()).concat(isPrimaryKey()).concat(isAutoincrement()).concat(isNotNull()).concat(isUnique()).concat(isDefault());
+		return column.concat(" ").concat(type()).concat(isLength()).concat(isPrimaryKey()).concat(isAutoincrement()).concat(isNotNull()).concat(isUnique()).concat(isDefault());
 	}
 
 	public String foreignKey() {

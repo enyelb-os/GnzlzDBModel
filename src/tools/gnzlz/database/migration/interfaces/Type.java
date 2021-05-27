@@ -1,5 +1,7 @@
 package tools.gnzlz.database.migration.interfaces;
 
+import java.sql.Types;
+
 public enum Type {
     INTEGER,
     INT,

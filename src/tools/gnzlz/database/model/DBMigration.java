@@ -71,16 +71,4 @@ public abstract class DBMigration implements ITypes {
         }
         return table;
     }
-
-    /*******************
-     * tableProperties
-     *******************/
-
-    public void orderMigrations() {
-        if(migrations != null) {
-            for(int i = 0; i < migrations.size(); i++){
-
-            }
-        }
-    }
 }

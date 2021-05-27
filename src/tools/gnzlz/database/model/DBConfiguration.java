@@ -105,6 +105,7 @@ public abstract class DBConfiguration implements ITypes, IDialects {
 			PropertiesMigration propertiesMigration = new PropertiesMigration();
 			migration = new PTMigration(propertiesMigration);
 			initMigration(propertiesMigration);
+			migration.orderMigrations();
 		}
 		return migration;
 	}

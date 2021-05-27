@@ -175,7 +175,7 @@ public class DBModel<M extends DBModel<?>>{
 	public DBObject get(String name) {
 		if(name != null) {
 			for (DBObject dbObject : columns()) {
-				if (dbObject.name().equals(name)) {
+				if (dbObject.name().equalsIgnoreCase(name)) {
 					return dbObject;
 				}
 			}
