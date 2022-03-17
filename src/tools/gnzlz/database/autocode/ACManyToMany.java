@@ -8,28 +8,48 @@ public class ACManyToMany {
 	private String relationForeign;
 	private String foreignKey;
 	
-	public ACManyToMany(String internalKey1, String relationInternal, String internalKey2, String relationForeign, String foreignKey) {
-		this(internalKey1, relationInternal, internalKey2, relationForeign);
-		this.foreignKey = foreignKey;
-	}
-	
-	public ACManyToMany(String internalKey1, String relationInternal, String internalKey2, String relationForeign) {
+	ACManyToMany(String internalKey1, String relationInternal, String internalKey2, String relationForeign, String foreignKey) {
 		this.internalKey1 = internalKey1;
 		this.relationInternal = relationInternal;
 		this.internalKey2 = internalKey2;
 		this.relationForeign = relationForeign;
+		this.foreignKey = foreignKey;
 	}
 	
 	String internalKey1() {
 		return internalKey1;
 	}
 	
+	String internalKey1UpperCase() {
+		return internalKey1.toUpperCase();
+	}
+	
+	String relationInternalKey1UpperCase() {
+		return relationInternalCamelCase().concat(".").concat(internalKey1UpperCase());
+	}
+	
 	String internalKey2() {
 		return internalKey2;
 	}
 	
+	String internalKey2UpperCase() {
+		return internalKey2.toUpperCase();
+	}
+	
+	String relationInternalKey2UpperCase() {
+		return relationInternalCamelCase().concat(".").concat(internalKey2UpperCase());
+	}
+	
 	String foreignKey() {
 		return foreignKey;
+	}
+	
+	String foreignKeyUpperCase() {
+		return foreignKey.toUpperCase();
+	}
+	
+	String relationForeignKeyUpperCase() {
+		return relationForeignCamelCase().concat(".").concat(foreignKeyUpperCase());
 	}
 	
 	String relationInternal() {
@@ -40,11 +60,19 @@ public class ACManyToMany {
 		return relationForeign;
 	}
 	
-	String relationInternalF() {
+	String relationInternalCamelCase() {
 		return ACFormat.camelCaseClass(relationInternal);
 	}
 	
-	String relationForeignF() {
+	String relationInternalCamelCaseClass() {
+		return ACFormat.camelCaseClass(relationInternal).concat(".class");
+	}
+	
+	String relationForeignCamelCase() {
 		return ACFormat.camelCaseClass(relationForeign);
+	}
+	
+	String relationForeignCamelCaseClass() {
+		return ACFormat.camelCaseClass(relationForeign).concat(".class");
 	}
 }

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class ACColumn {
 	
-protected String name;
+	protected String name;
 	
 	protected boolean primaryKey;
 	protected String type;
@@ -13,7 +13,7 @@ protected String name;
 	protected ArrayList<ACRelation> hasMany;
 	protected ArrayList<ACManyToMany> belongsToMany;
 	
-	public ACColumn(String name) {
+	ACColumn(String name) {
 		this.name = name;
 	}
 	
@@ -29,8 +29,12 @@ protected String name;
 		return name;
 	}
 	
-	public String nameF() {
-		return ACFormat.camelCaseMethod(name);
+	public String nameCamelCase() {
+		return ACFormat.camelCaseMethod(ACFormat.beginValidNumber(name));
+	}
+	
+	public String nameUpperCase() {
+		return ACFormat.beginValidNumber(name).toUpperCase();
 	}
 	
 	/****************************

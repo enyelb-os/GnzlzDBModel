@@ -10,15 +10,15 @@ public class ACFileCustomModel {
 	public static void createFile(ACDataBase dataBase) {
 		try {
 			for (ACTable table : dataBase.tables()) {
-				File file = new File(path(dataBase)+nameF(table)+".java");
+				File file = new File(path(dataBase, table)+nameF(table)+".java");
 				if(!file.exists()) {
 					Files.createFile(file.toPath());
 					FileWriter fileWriter = new FileWriter(file.toString());
-					fileWriter.write(packages(dataBase));
+					fileWriter.write(packages(dataBase, table));
 					fileWriter.write(line(2));
 					fileWriter.write(imports(dataBase,table));
 					fileWriter.write(line(1));
-					fileWriter.write(customModelName(table));
+					fileWriter.write(dbModelName(table));
 					fileWriter.write(line(2));
 					fileWriter.write(method(table));
 					fileWriter.write(line(2));
@@ -38,22 +38,15 @@ public class ACFileCustomModel {
 	 * path
 	 ********************************/
 
-	private static String modelPackage(ACDataBase dataBase) {
-		if(dataBase.configuration.modelPackage()!=null)
-			return dataBase.configuration.modelPackage();
+	static String modelPackage(ACDataBase dataBase, ACTable table) {
+		if(dataBase.configuration.model().modelPackage()!=null)
+			return dataBase.configuration.model().modelPackage().concat(table.packegeName()).concat(".custom");
 		else 
-			return dataBase.configuration.getClass().getPackage().getName() + ".model"; 
+			return dataBase.configuration.getClass().getPackage().getName().concat(".model").concat(table.packegeName()).concat(".custom");
 	}
 	
-	static String icModelPackage(ACDataBase dataBase) {
-		if(dataBase.configuration.modelPackage()!=null)
-			return dataBase.configuration.modelPackage()+".custom";
-		else 
-			return dataBase.configuration.getClass().getPackage().getName() + ".model.custom"; 
-	}
-	
-	private static String path(ACDataBase dataBase) {
-		File file = new File("src/"+(icModelPackage(dataBase).replaceAll("[.]", "/")));
+	private static String path(ACDataBase dataBase, ACTable table) {
+		File file = new File("src/"+(modelPackage(dataBase, table).replaceAll("[.]", "/")));
 		if(!file.exists())
 			file.mkdirs();
 		return file.getPath()+"/";
@@ -63,8 +56,12 @@ public class ACFileCustomModel {
 	 * nameF
 	 ********************************/
 
+	static String prefix() {
+		return "IC";
+	}
+
 	static String nameF(ACTable table) {
-		return "IC"+table.tableF(); 
+		return prefix()+table.tableCamelCase();
 	}
 	
 	/********************************
@@ -73,22 +70,22 @@ public class ACFileCustomModel {
 	
 	private static String imports(ACDataBase dataBase,ACTable table) {
 		return new StringBuilder()
-				.append("import ").append(modelPackage(dataBase)).append(".").append(table.tableF()).append(";").append(line(1)).toString();
+				.append("import ").append(ACFileModel.modelPackage(dataBase, table)).append(".").append(ACFileModel.nameF(table)).append(";").append(line(1)).toString();
 	}
 	
 	/********************************
 	 * packages
 	 ********************************/
 	
-	private static String packages(ACDataBase dataBase) {
-		return new StringBuilder().append("package ").append(icModelPackage(dataBase)).append(";").toString();
+	private static String packages(ACDataBase dataBase, ACTable table) {
+		return new StringBuilder().append("package ").append(modelPackage(dataBase, table)).append(";").toString();
 	}
 	
 	/********************************
 	 * modelClass
 	 ********************************/
 	
-	private static String customModelName(ACTable table) {
+	private static String dbModelName(ACTable table) {
 		return new StringBuilder().append("public interface ").append(nameF(table)).append(" {").toString();
 	}
 	
@@ -101,7 +98,7 @@ public class ACFileCustomModel {
 				.append(tab(1)).append("/*******************************************").append(line(1))
 				.append(tab(1)).append(" * @Example").append(line(1))
 				.append(tab(1)).append(" * public default <TypeData> nameMethod() {").append(line(1))
-				.append(tab(1)).append(" * \t\tmodel = ").append(ACFormat.camelCaseMethod(table.tableF())).append("();").append(line(1))
+				.append(tab(1)).append(" * \t\tmodel = ").append(ACFormat.camelCaseMethod(table.tableCamelCase())).append("();").append(line(1))
 				.append(tab(1)).append(" * \t\tcode ... ").append(line(1))
 				.append(tab(1)).append(" * }").append(line(1))
 				.append(tab(1)).append(" *******************************************/").toString();
@@ -113,7 +110,7 @@ public class ACFileCustomModel {
 	
 	private static String method(ACTable table) {
 		return new StringBuilder()
-				.append(tab(1)).append("public ").append(table.tableF()).append(" ").append("modelDB();").toString();
+				.append(tab(1)).append("public ").append(table.tableCamelCase()).append(" ").append("modelDB();").toString();
 	}
 	
 	/********************************
