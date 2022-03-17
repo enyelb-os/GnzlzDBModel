@@ -3,7 +3,7 @@ package tools.gnzlz.database.query.model.builder;
 import tools.gnzlz.database.query.model.builder.Query.Value;
 import tools.gnzlz.database.query.model.builder.data.GInsert;
 
-public interface IValues<Type extends Query<?>>{
+public interface IValues<Type extends Query<?,?>>{
 	
 	public Type type();
 	

@@ -19,9 +19,18 @@ public class PropertiesMigration {
 	}
 
 	public PropertiesMigration add(String table,IMigration migration) {
+		return add(table,"",migration);
+	}
+
+	public PropertiesMigration add(String table, String packageName,IMigration migration) {
 		migrations().add(new DBMigration() {
 			public String tableName() {
 				return table;
+			}
+
+			@Override
+			public String packageName() {
+				return packageName;
 			}
 
 			@Override

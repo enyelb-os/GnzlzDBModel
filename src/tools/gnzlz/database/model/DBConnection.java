@@ -9,7 +9,6 @@ import tools.gnzlz.database.properties.PTConnection;
 import tools.gnzlz.database.properties.PropertiesConnection;
 import tools.gnzlz.database.query.migration.CreateDB;
 import tools.gnzlz.database.query.migration.CreateTable;
-import tools.gnzlz.database.query.model.builder.Query;
 
 public class DBConnection{
 
@@ -31,6 +30,7 @@ public class DBConnection{
 				e.printStackTrace();
 			}
 		createDataBaseifNoExists();
+		shutdown();
 	}
 	
 	/**********************
@@ -53,6 +53,19 @@ public class DBConnection{
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
+	}
+
+	/**********************
+	 * Shutdown
+	 **********************/
+
+	private void shutdown() {
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				close();
+			}
+		});
 	}
 
 	/**********************
@@ -162,14 +175,14 @@ public class DBConnection{
 
 	synchronized void migrate(ArrayList<DBMigration> migrations){
 		if(migrations != null && !migrations.isEmpty()) {
-			ArrayList<String> newTables = new ArrayList<String>();
+			ArrayList<DBMigration> newTables = new ArrayList<DBMigration>();
 			ArrayList<DBModel<?>> tables = tables();
 			migrations.forEach(m -> {
 				if(migrate(m, tables))
-					newTables.add(m.tableName());
+					newTables.add(m);
 			});
 
-			ACDataBase.autocode(this,newTables);
+			ACDataBase.autocodeMigrations(this,newTables);
 		}
 	}
 
@@ -344,10 +357,10 @@ public class DBConnection{
 	 * Query
 	 **********************/
 	
-	public DBQuery query(tools.gnzlz.database.query.model.builder.Query<?> query){
+	public DBExecuteQuery query(tools.gnzlz.database.query.model.builder.Query<?,?> query){
         try {
         	open();
-        	DBQuery dbQuery = new DBQuery(connection.prepareStatement(query.dialect(properties.dialect()).query(),Statement.RETURN_GENERATED_KEYS));
+			DBExecuteQuery dbQuery = new DBExecuteQuery(connection.prepareStatement(query.dialect(properties.dialect()).query(),Statement.RETURN_GENERATED_KEYS));
         	Object [] objects = query.objects();
         	for (int i = 0; i < objects.length; i++)
         		dbQuery.value(i+1, objects[i]);
@@ -358,10 +371,10 @@ public class DBConnection{
         return null;
 	}
 
-	public DBQuery query(tools.gnzlz.database.query.migration.builder.Query<?> query){
+	public DBExecuteQuery query(tools.gnzlz.database.query.migration.builder.Query<?> query){
 		try {
 			open();
-			DBQuery dbQuery = new DBQuery(connection.prepareStatement(query.dialect(properties.dialect()).query(),Statement.RETURN_GENERATED_KEYS));
+			DBExecuteQuery dbQuery = new DBExecuteQuery(connection.prepareStatement(query.dialect(properties.dialect()).query(),Statement.RETURN_GENERATED_KEYS));
 			return dbQuery;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -373,10 +386,10 @@ public class DBConnection{
 	 * Query
 	 **********************/
 	
-	public DBQuery query(String query){
+	public DBExecuteQuery query(String query){
         try {
         	open();
-        	return new DBQuery(connection.prepareStatement(query,Statement.RETURN_GENERATED_KEYS));
+        	return new DBExecuteQuery(connection.prepareStatement(query,Statement.RETURN_GENERATED_KEYS));
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

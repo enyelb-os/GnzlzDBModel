@@ -42,7 +42,8 @@ public class DColumn {
 	}
 
 	public String isLength() {
-		return length.isEmpty() ? "" : " (".concat(length).concat(")");
+		return query.dialect() != Dialect.SQLite && type.equals("VARCHAR") ? "(250)" :
+		 		length.isEmpty() ? "" : " (".concat(length).concat(")");
 	}
 
 	public String isUnique() {

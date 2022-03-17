@@ -2,7 +2,7 @@ package tools.gnzlz.database.query.model.builder;
 
 import tools.gnzlz.database.query.model.builder.data.GUpdate;
 
-public interface IUpdate<Type extends Query<?>> extends ISet<Type>, IWhere<Type>{
+public interface IUpdate<Type extends Query<Type,?>> extends ISet<Type>, IWhere<Type>{
 	
 	Type type();
 	

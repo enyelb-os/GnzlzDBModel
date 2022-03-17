@@ -1,23 +1,24 @@
 package tools.gnzlz.database.query.model;
 
+import tools.gnzlz.database.model.DBModel;
 import tools.gnzlz.database.query.model.builder.IUpdate;
 import tools.gnzlz.database.query.model.builder.Query;
 import tools.gnzlz.database.query.model.builder.data.GUpdate;
 import tools.gnzlz.database.query.model.builder.data.GWhere;
 
-public class Update extends Query<Update> implements IUpdate<Update>{
+public class Update<M extends DBModel<M>> extends Query<Update<M>,M> implements IUpdate<Update<M>>{
 	
 	public Update() {}
 	
-	public static Update create(String table, String ... columns) {
-		return new Update().table(table, columns);
+	public static <M extends DBModel<M>> Update<M> create(String table, String ... columns) {
+		return new Update<M>().table(table, columns);
 	}
 	
-	public static Update create() {
-		return new Update();
+	public static <M extends DBModel<M>> Update<M> create() {
+		return new Update<M>();
 	}
 	
-	public Update table(String table, String ... columns){
+	public Update<M> table(String table, String ... columns){
 		if(table == null || table.isEmpty()) return this;
 		
 		String[] columnsT = columns != null ? columns : new String[0];

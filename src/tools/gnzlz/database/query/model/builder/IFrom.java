@@ -5,7 +5,7 @@ import tools.gnzlz.database.query.model.builder.data.DJoin;
 import tools.gnzlz.database.query.model.builder.data.DJoin.TYPE;
 import tools.gnzlz.database.query.model.builder.data.DFrom;
 
-public interface IFrom<Type extends Query<?>>{
+public interface IFrom<Type extends Query<?,?>>{
 	
 	Type type();
 	

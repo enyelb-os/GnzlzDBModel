@@ -3,7 +3,7 @@ package tools.gnzlz.database.query.model.builder;
 import tools.gnzlz.database.query.model.builder.data.DSelect;
 import tools.gnzlz.database.query.model.builder.data.GSelect;
 
-public interface ISelect<Type extends Query<?>> extends IFrom<Type> , ILimit<Type>, IOrderBy<Type>, IWhere<Type>{
+public interface ISelect<Type extends Query<Type,?>> extends IFrom<Type> , ILimit<Type>, IOrderBy<Type>, IWhere<Type>{
 	
 	public Type type();
 	

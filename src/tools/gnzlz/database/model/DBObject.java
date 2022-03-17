@@ -89,38 +89,80 @@ public class DBObject {
 	 ****************************/
 	
 	public int intValue(){
-		if(object instanceof Number)
+		if(object instanceof Number) {
 			return ((Number) object).intValue();
+		} else if(object instanceof String){
+			try {
+				return Integer.parseInt(object.toString());
+			}catch (NumberFormatException e){
+				return -1;
+			}
+		}
 		return -1;
 	}
 	
 	public long longValue(){
-		if(object instanceof Number)
+		if(object instanceof Number) {
 			return ((Number) object).longValue();
+		} else if(object instanceof String){
+			try {
+				return Long.parseLong(object.toString());
+			}catch (NumberFormatException e){
+				return -1;
+			}
+		}
 		return -1;
 	}
 	
 	public short shortValue(){
-		if(object instanceof Number)
+		if(object instanceof Number) {
 			return ((Number) object).shortValue();
+		} else if(object instanceof String){
+			try {
+				return Short.parseShort(object.toString());
+			}catch (NumberFormatException e){
+				return -1;
+			}
+		}
 		return -1;
 	}
 	
 	public float floatValue(){
-		if(object instanceof Number)
+		if(object instanceof Number) {
 			return ((Number) object).floatValue();
+		} else if(object instanceof String){
+			try {
+				return Float.parseFloat(object.toString());
+			}catch (NumberFormatException e){
+				return -1;
+			}
+		}
 		return -1;
 	}
 	
 	public double doubleValue(){
-		if(object instanceof Number)
+		if(object instanceof Number) {
 			return ((Number) object).doubleValue();
+		} else if(object instanceof String){
+			try {
+				return Double.parseDouble(object.toString());
+			}catch (NumberFormatException e){
+				return -1;
+			}
+		}
 		return -1;
 	}
 	
 	public BigDecimal decimalValue(){
-		if(object instanceof BigDecimal)
-			return (BigDecimal)object;
+		if(object instanceof BigDecimal) {
+			return (BigDecimal) object;
+		} else if(object instanceof String){
+			try {
+				return new BigDecimal(object.toString());
+			}catch (NumberFormatException e){
+				return new BigDecimal(-1);
+			}
+		}
 		return new BigDecimal(-1);
 	}
 	

@@ -9,8 +9,26 @@ import java.sql.Struct;
 import java.util.Date;
 
 public class ACFormat {
-	
+
+	static String beginValidNumber(String s) {
+		boolean digit = false;
+		for (int i = 0 ; i < s.length(); i++){
+			if(Character.isDigit(s.charAt(i))){
+				digit = true;
+				if(i == s.length()-1)
+					return "n"+s;
+			}else{
+				if(digit){
+					return s.substring(i) + s.substring(0,i);
+				}
+				break;
+			}
+		}
+		return s;
+	}
+
 	static String camelCaseClass(String s) {
+		s = s.toLowerCase();
 		String temp[] = s.split("_");
 		String newString = "";
 		for (String string : temp) {
@@ -21,6 +39,7 @@ public class ACFormat {
 	}
 	
 	static String camelCaseMethod(String s) {
+		s = s.toLowerCase();
 		String temp[] = s.split("_");
 		String newString = "";
 		for (int i = 0; i < temp.length; i++) {
@@ -129,6 +148,39 @@ public class ACFormat {
 			return "import " + Struct.class.getPackage().getName() + "." + Struct.class.getSimpleName() + ";" + System.lineSeparator();
 			
 		return "";
+	}
+
+	static boolean dateFormat(String type){
+		String split[] = type.split(" ");
+		type = split == null ? type : split[0];
+
+		if(type.equalsIgnoreCase("DATETIME") || type.equalsIgnoreCase("DATE") || type.equalsIgnoreCase("TIME") || type.equalsIgnoreCase("TIMESTAMP"))
+			return true;
+		return false;
+	}
+
+	/********************************
+	 * tab
+	 ********************************/
+
+	public static StringBuilder tab(int n) {
+		StringBuilder tab = new StringBuilder();
+		for (int i = 0; i < n; i++) {
+			tab.append("\t");
+		}
+		return tab;
+	}
+
+	/********************************
+	 * separator
+	 ********************************/
+
+	public static StringBuilder line(int n) {
+		StringBuilder line = new StringBuilder();
+		for (int i = 0; i < n; i++) {
+			line.append(System.lineSeparator());
+		}
+		return line;
 	}
 
 }

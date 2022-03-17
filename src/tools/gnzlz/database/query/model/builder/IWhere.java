@@ -3,7 +3,7 @@ package tools.gnzlz.database.query.model.builder;
 import tools.gnzlz.database.query.model.builder.Query.Value;
 import tools.gnzlz.database.query.model.builder.data.GWhere;
 
-public interface IWhere<Type extends Query<?>> {
+public interface IWhere<Type extends Query<Type,?>> {
 	
 	Type type();
 	
@@ -13,7 +13,7 @@ public interface IWhere<Type extends Query<?>> {
 	 * WHERE
 	 ***************************/
 	
-	public default Type add(Query<?> query){
+	public default Type add(Query<?,?> query){
 		if(gWhere().query(query)){
 			type().addValues(query.values());
 		}

@@ -2,7 +2,7 @@ package tools.gnzlz.database.query.model.builder;
 
 import tools.gnzlz.database.query.model.builder.data.GInsert;
 
-public interface IInsert<Type extends Query<?>> extends IValues<Type>{
+public interface IInsert<Type extends Query<?,?>> extends IValues<Type>{
 	
 	Type type();
 	

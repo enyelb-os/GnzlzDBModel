@@ -39,7 +39,25 @@ public class DBColumn {
 	public boolean primaryKey() {
 		return primaryKey;
 	}
-	
+
+	/****************************
+	 * ForeignKey
+	 ****************************/
+
+	public DBModel<?> foreignKey() {
+		DBROneToOne relation = isForeignKey() ? hasOnes().get(0) : null;
+		return relation != null ? relation.modelLocal() : null;
+	}
+
+	public boolean isForeignKey() {
+		return !hasOnes().isEmpty();
+	}
+
+	public String foreignKeyLabel() {
+		DBROneToOne relation = isForeignKey() ? hasOnes().get(0) : null;
+		return relation != null ? relation.localaKey() : null;
+	}
+
 	/****************************
 	 * HasOne
 	 ****************************/

@@ -136,6 +136,12 @@ public class MGColumn {
         return this;
     }
 
+    public  <M extends DBMigration> MGColumn foreignKey(Class<M> migration) {
+        DBMigration dbMigration = DBMigration.migration(migration);
+        this.foreignKey = new MGForeignKey(dbMigration.tableName(),dbMigration.primaryKeyName());
+        return this;
+    }
+
     public  <M extends DBMigration> MGColumn foreignKey(Class<M> migration,String column) {
         DBMigration dbMigration = DBMigration.migration(migration);
         this.foreignKey = new MGForeignKey(dbMigration.tableName(),column);

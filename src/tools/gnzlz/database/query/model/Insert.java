@@ -1,15 +1,16 @@
 package tools.gnzlz.database.query.model;
 
+import tools.gnzlz.database.model.DBModel;
 import tools.gnzlz.database.query.model.builder.IInsert;
 import tools.gnzlz.database.query.model.builder.Query;
 import tools.gnzlz.database.query.model.builder.data.GInsert;
 
-public class Insert extends Query<Insert> implements IInsert<Insert>{
+public class Insert<M extends DBModel<M>> extends Query<Insert<M>,M> implements IInsert<Insert<M>>{
 
 	public Insert() {}
 	
-	public static Insert create() {
-		return new Insert();
+	public static <M extends DBModel<M>> Insert<M> create() {
+		return new Insert<M>();
 	}
 	
 	/***************************

@@ -3,7 +3,7 @@ package tools.gnzlz.database.query.model.builder;
 import tools.gnzlz.database.query.model.builder.data.DOrderBy.TYPE;
 import tools.gnzlz.database.query.model.builder.data.GSelect;
 
-public interface IOrderBy<Type extends Query<?>>{
+public interface IOrderBy<Type extends Query<?,?>>{
 
 	Type type();
 	

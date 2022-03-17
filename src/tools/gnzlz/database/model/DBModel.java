@@ -1,9 +1,9 @@
 package tools.gnzlz.database.model;
 
 import java.lang.reflect.InvocationTargetException;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
+import java.math.BigDecimal;
+import java.sql.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +15,7 @@ import tools.gnzlz.database.query.model.Select;
 import tools.gnzlz.database.query.model.Update;
 import tools.gnzlz.database.query.model.builder.Query;
 
-public class DBModel<M extends DBModel<?>>{
+public class DBModel<M extends DBModel<M>>{
 	
 	private DBTable table;
 	
@@ -56,8 +56,9 @@ public class DBModel<M extends DBModel<?>>{
 
 	static <T extends DBModel<?>> DBModel<?> model(Class<T> c) {
 		for (DBModel<?> dbModel : models()) {
-			if(dbModel.getClass().getName().equals(c.getName()))
+			if(dbModel.getClass().getName().equals(c.getName())) {
 				return dbModel;
+			}
 		}
 		T model = create(c);
 		models().add(model);
@@ -68,11 +69,11 @@ public class DBModel<M extends DBModel<?>>{
 	 * query
 	 ***********************/
 	
-	public DBQuery query(Query<?> query) {
+	public DBExecuteQuery query(Query<?,M> query) {
 		return table.query(query);
 	}
 	
-	public DBQuery query(String query) {
+	public DBExecuteQuery query(String query) {
 		return table.query(query);
 	}
 	
@@ -85,10 +86,11 @@ public class DBModel<M extends DBModel<?>>{
 		if(table != null) {
 			for (DBColumn dbColumn : table.columns()) {
 				DBObject dbObject = get(dbColumn.name);
-				if(dbObject == null)
+				if(dbObject == null) {
 					columns().add(new DBObject(dbColumn.name, null, dbColumn));
-				else 
+				} else {
 					dbObject.column(dbColumn);
+				}
 			}
 		}
 		return (M) this;
@@ -103,10 +105,11 @@ public class DBModel<M extends DBModel<?>>{
 		for (int i = 0; i < m.getColumnCount(); i++) {
 			String name = m.getColumnLabel(i+1);
 			DBObject dbObject = get(name);
-			if(dbObject != null)
-				dbObject.initObject(r.getObject(i+1));
-			else
-				columns().add(new DBObject(name, r.getObject(i+1), null));
+			if(dbObject != null) {
+				dbObject.initObject(r.getObject(i + 1));
+			} else {
+				columns().add(new DBObject(name, r.getObject(i + 1), null));
+			}
 		}
 		exists = true;
 	}
@@ -117,8 +120,9 @@ public class DBModel<M extends DBModel<?>>{
 	
 	public M primaryKey(Object object) {
 		DBObject dbObject = primaryKey();
-		if(dbObject != null && object != null)
+		if(dbObject != null && object != null) {
 			dbObject.object(object);
+		}
 		return (M) this;
 	}
 	
@@ -146,6 +150,19 @@ public class DBModel<M extends DBModel<?>>{
 	public String table() {
 		return table.table();
 	}
+
+	/***********************
+	 * DateFormat
+	 ***********************/
+
+	protected Date dateParse(String date) {
+		try {
+			return table.configuration().model().dateFormat().parse(date);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return new Date();
+	}
 	
 	/***********************
 	 * Columns
@@ -165,7 +182,12 @@ public class DBModel<M extends DBModel<?>>{
 	}
 
 	public String[] columnsNamesArray() {
-		return (String[]) columnsNames().toArray();
+		ArrayList<DBObject> objects = columns();
+		String[] names = new String[objects.size()];
+		for (int i = 0 ; i < objects.size() ; i++) {
+			names[i] = objects.get(i).name;
+		}
+		return names;
 	}
 	
 	/***********************
@@ -182,6 +204,70 @@ public class DBModel<M extends DBModel<?>>{
 		}
 		return null;
 	}
+
+	public int integer(String name) {
+		return get(name).intValue();
+	}
+
+	public double doublev(String name) {
+		return get(name).doubleValue();
+	}
+
+	public BigDecimal decimalv(String name) {
+		return get(name).decimalValue();
+	}
+
+	public long longv(String name){
+		return get(name).longValue();
+	}
+
+	public short shortv(String name){
+		return get(name).shortValue();
+	}
+
+	public float floatv(String name){
+		return get(name).floatValue();
+	}
+
+	public byte bytev(String name){
+		return get(name).byteValue();
+	}
+
+	public String string(String name){
+		return get(name).stringValue();
+	}
+
+	public boolean booleanv(String name){
+		return get(name).booleanValue();
+	}
+
+	public Date date(String name){
+		return get(name).dateValue();
+	}
+
+	public byte[] byteArray(String name){
+		return get(name).byteArrayValue();
+	}
+
+	public Clob clob(String name){
+		return get(name).clobValue();
+	}
+
+	public Blob blob(String name){
+		return get(name).blobValue();
+	}
+
+	public Array array(String name){
+		return get(name).arrayValue();
+	}
+
+	public Ref ref(String name){
+		return get(name).refValue();
+	}
+
+	public Struct struct(String name){
+		return get(name).structValue();
+	}
 	
 	public DBObject get(int i) {
 		return columns().get(i);
@@ -197,16 +283,18 @@ public class DBModel<M extends DBModel<?>>{
 			for (DBObject dbObject : columns()) {
 				if (dbObject.name().equals(name)) {
 					exists = true;
-					if(object instanceof Date)
-						dbObject.object(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format((Date)object));
-					else
+					if (object instanceof Date) {
+						dbObject.object(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format((Date) object));
+					} else {
 						dbObject.object(object);
+					}
 					break;
 				}
 			}
 			
-			if(!exists)
+			if(!exists) {
 				columns().add(new DBObject(name, object, null));
+			}
 		}
 	}
 	
@@ -236,11 +324,14 @@ public class DBModel<M extends DBModel<?>>{
 	 * Save
 	 ***********************/
 	
-	public void save() {
-		if(exists)
+	public M save() {
+		if(exists) {
 			update();
-		else 
+		} else {
 			insert();
+		}
+
+		return (M) this;
 	}
 	
 	/*******************************
@@ -249,22 +340,26 @@ public class DBModel<M extends DBModel<?>>{
 	
 	private void insert(){
 		if(table != null && columns().size() > 0) {
-			Insert insert = Insert.create().table(table.table());
-			for (DBObject dbObject : columns())
-				if(dbObject.object() != null && dbObject.column() != null) 
+			Insert<M> insert = Insert.<M>create().table(table.table());
+			for (DBObject dbObject : columns()) {
+				if (dbObject.object() != null && dbObject.column() != null) {
 					insert.columns(dbObject.name()).values(dbObject.object());
-			
-			table.configuration().connection().query(insert).executeID(this);
+				}
+			}
+			if(table.configuration().connection().query(insert).executeID(this) != null){
+				exists = true;
+			}
 		}
 	}
 	
 	private void update(){
 		DBObject primaryKey = primaryKey();
 		if(table != null && columns().size() > 0 && primaryKey != null) {
-			Update update = Update.create().table(table.table());
+			Update<M> update = Update.<M>create().table(table.table());
 			for (DBObject dbObject : columns()) {
-				if(dbObject.object() != null && dbObject.column() != null) 
+				if(dbObject.object() != null && dbObject.column() != null) {
 					update.columns(dbObject.name()).values(dbObject.object());
+				}
 			}
 			update.where(primaryKey.name(), primaryKey.object());
 			table.configuration().connection().query(update).execute();
@@ -275,8 +370,7 @@ public class DBModel<M extends DBModel<?>>{
 		if(exists) {
 			DBObject primaryKey = primaryKey();
 			if(table != null && columns().size() > 0 && primaryKey != null) {
-				Delete delete = Delete.create()
-					.table(table.table()).where(primaryKey.name(), primaryKey.object());
+				Delete<?> delete = Delete.<M>create().table(table.table()).where(primaryKey.name(), primaryKey.object());
 				table.configuration().connection().query(delete).execute();
 			}
 		}
@@ -303,9 +397,11 @@ public class DBModel<M extends DBModel<?>>{
 			    	aux = dbObject != null ? dbObject.object : null ;
 			    }
 				
-				if(aux != null)
-					if(primaryKey() != null && primaryKey().object() != null)
+				if(aux != null) {
+					if (primaryKey() != null && primaryKey().object() != null) {
 						return primaryKey().object.equals(aux);
+					}
+				}
 				
 				return false;
 			}
@@ -321,8 +417,9 @@ public class DBModel<M extends DBModel<?>>{
 		if(dbObject != null) {
 			if(dbObject.column != null) {
 				DBROneToOne relations = localKey != null ? dbObject.column.getHasOne(c, localKey) : dbObject.column.getHasOne(c);
-				if(relations != null) 
-					return (T) relations.hasOne(this,dbObject);
+				if(relations != null) {
+					return (T) relations.hasOne(this, dbObject);
+				}
 			}
 		}
 		return null;
@@ -456,7 +553,7 @@ public class DBModel<M extends DBModel<?>>{
 	
 	protected M find(DBObject column) {
 		if(table != null && column !=null && column.object() != null && (column.isChange() || table.configuration().model().refresh()))
-			return (M) table.query(Select.create().from(table.table()).where(column.name(), column.object())).executeSingle(this);
+			return (M) table.query(Select.create().from(table.table()).where(column.name(), column.object()).limit(1)).executeSingle(this);
 		return (M) this;
 	}
 
@@ -551,5 +648,25 @@ public class DBModel<M extends DBModel<?>>{
 	public static <T extends DBModel<?>> ArrayList<T> all(Class<T> c) {
 		T model = create(c);
 		return (ArrayList<T>) model.all();
+	}
+
+	/***********************
+	 * Select
+	 ***********************/
+
+	public Select<M> select() {
+		if(table != null) {
+			Select<M> select = new Select<M>();
+			select.table(table.table(), "",null);
+			select.execute(() -> {
+				return new DBQuery<M>(table.connection(), (M) this , select);
+			});
+			return select;
+		}
+		return null;
+	}
+
+	public static <M extends DBModel<M>> Select<M> select(Class<M> c) {
+		return create(c).select();
 	}
 }

@@ -12,6 +12,20 @@ public class DBROneToOne {
 		this.relationLocal = relationLocal;
 		this.localaKey = localKey;
 	}
+
+	Class<?> Class() {
+		return relationLocal;
+	}
+
+
+	<T extends DBModel<?>> DBModel<?> modelLocal() {
+		if(modelLocal == null) modelLocal = DBModel.create((Class<T>) relationLocal);
+		return modelLocal;
+	}
+
+	String localaKey() {
+		return localaKey;
+	}
 	
 	public <T extends DBModel<?>> boolean isClass(Class<T> c) {
 		return relationLocal.getName().equals(c.getName());
@@ -28,10 +42,5 @@ public class DBROneToOne {
 				.where(modelForeign.table()+"."+foreignKey.name, foreignKey.object);
 		
 		return (DBModel<?>) modelLocal().query(select).executeSingle(modelLocal().getClass());
-	}
-	
-	private <T extends DBModel<?>> DBModel<?> modelLocal() {
-		if(modelLocal == null) modelLocal = DBModel.create((Class<T>) relationLocal);
-		return modelLocal;
 	}
 }

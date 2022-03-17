@@ -2,8 +2,8 @@ package tools.gnzlz.database.query.model.builder;
 
 import tools.gnzlz.database.query.model.builder.data.GDelete;
 
-public interface IDelete<Type extends Query<?>> extends IWhere<Type>{
-	
+public interface IDelete<Type extends Query<Type,?>> extends IWhere<Type>{
+
 	Type type();
 	
 	GDelete gDelete();

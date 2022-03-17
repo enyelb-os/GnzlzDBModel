@@ -1,16 +1,17 @@
 package tools.gnzlz.database.query.model;
 
+import tools.gnzlz.database.model.DBModel;
 import tools.gnzlz.database.query.model.builder.IDelete;
 import tools.gnzlz.database.query.model.builder.Query;
 import tools.gnzlz.database.query.model.builder.data.GDelete;
 import tools.gnzlz.database.query.model.builder.data.GWhere;
 
-public class Delete extends Query<Delete> implements IDelete<Delete>{
+public class Delete<M extends DBModel<M>> extends Query<Delete<M>,M> implements IDelete<Delete<M>>{
 	
-	private Delete() {}
-	
-	public static Delete create() {
-		return new Delete();
+	public Delete() {}
+
+	public static <M extends DBModel<M>> Delete<M> create() {;
+		return new Delete<M>();
 	}
 	
 	/***************************
@@ -38,14 +39,13 @@ public class Delete extends Query<Delete> implements IDelete<Delete>{
 	}
 	
 	@Override
-	public Delete type() {
+	public Delete<M> type() {
 		return this;
 	}
 
 	@Override
 	public String query() {
 		StringBuilder builder = generateDetele();
-		System.out.println(builder);
 		return builder.toString();
 	}
 

@@ -3,7 +3,7 @@ package tools.gnzlz.database.query.model.builder;
 import tools.gnzlz.database.query.model.builder.Query.Value;
 import tools.gnzlz.database.query.model.builder.data.GUpdate;
 
-public interface ISet<Type extends Query<?>>{
+public interface ISet<Type extends Query<?,?>>{
 	
 	Type type();
 	
@@ -44,7 +44,7 @@ public interface ISet<Type extends Query<?>>{
 		StringBuilder str = new StringBuilder("SET");
 		
 		for (int i = 0; i < gUpdate().sets().size(); i++) {
-			str.append(i == 0 ? "":", ").append(gUpdate().sets().get(i)).append(" = ?");
+			str.append(i == 0 ? " ":", ").append(gUpdate().sets().get(i)).append(" = ?");
 		}
 		
 		if(gUpdate().sets().size() > 0) str.append(" ");

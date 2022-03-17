@@ -169,11 +169,11 @@ public class DBTable {
 		return configuration.connection();
 	}
 	
-	public DBQuery query(Query<?> query) {
+	public DBExecuteQuery query(Query<?,?> query) {
 		return configuration.connection().query(query);
 	}
 	
-	public DBQuery query(String query) {
+	public DBExecuteQuery query(String query) {
 		return configuration.connection().query(query);
 	}
 	

@@ -1,10 +1,11 @@
 package tools.gnzlz.database.query.model;
 
+import tools.gnzlz.database.model.DBModel;
 import tools.gnzlz.database.query.model.builder.IWhere;
 import tools.gnzlz.database.query.model.builder.Query;
 import tools.gnzlz.database.query.model.builder.data.GWhere;
 
-public class Where extends Query<Where> implements IWhere<Where>{
+public class Where<M extends DBModel<M>> extends Query<Where<M>,M> implements IWhere<Where<M>>{
 	
 	private Where() {}
 	

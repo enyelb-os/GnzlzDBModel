@@ -32,7 +32,7 @@ public class PTMigration {
 				boolean exists = false;
 				for (MGColumn column: dbMigration.table().columns()){
 					if(column.foreignKey() != null){
-						for (int j = i+1 ; j < migration.migrations.size() - 1; j++){
+						for (int j = i+1 ; j < migration.migrations.size(); j++){
 							DBMigration dbMigrationMove = migration.migrations.get(j);
 							if(column.foreignKey().table().equalsIgnoreCase(dbMigrationMove.tableName())){
 								migration.migrations.remove(dbMigrationMove);

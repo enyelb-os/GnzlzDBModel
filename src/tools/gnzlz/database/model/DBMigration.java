@@ -1,8 +1,8 @@
 package tools.gnzlz.database.model;
 
+import tools.gnzlz.database.migration.MGColumn;
 import tools.gnzlz.database.migration.interfaces.ITypes;
 import tools.gnzlz.database.properties.PTTable;
-import tools.gnzlz.database.properties.PropertiesTable;
 import tools.gnzlz.database.properties.PropertiesTable;
 
 import java.lang.reflect.InvocationTargetException;
@@ -57,11 +57,21 @@ public abstract class DBMigration implements ITypes {
 
     public abstract String tableName();
 
+    public abstract String packageName();
+
     protected abstract void initTable(PropertiesTable table);
 
     /*******************
      * tableProperties
      *******************/
+
+    public String primaryKeyName() {
+        for (MGColumn column : table().columns()) {
+            if(column.isPrimaryKey())
+                return column.column();
+        }
+        return "";
+    }
 
     public PTTable table() {
         if(table == null) {

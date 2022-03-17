@@ -2,7 +2,7 @@ package tools.gnzlz.database.query.model.builder;
 
 import tools.gnzlz.database.query.model.builder.data.GSelect;
 
-public interface ILimit<Type extends Query<?>>{
+public interface ILimit<Type extends Query<?,?>>{
 	
 	Type type();
 	

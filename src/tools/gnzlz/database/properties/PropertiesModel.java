@@ -1,9 +1,12 @@
 package tools.gnzlz.database.properties;
 
+import java.text.SimpleDateFormat;
+
 public class PropertiesModel {
 
 	protected String modelPackage;
 	protected boolean refresh;
+	protected SimpleDateFormat simpleDateFormat;
 
 	/*****************
 	 * modelPackage
@@ -20,6 +23,15 @@ public class PropertiesModel {
 
 	public PropertiesModel refresh(boolean refresh) {
 		this.refresh = refresh;
+		return this;
+	}
+
+	/*****************
+	 * dateFormat
+	 *****************/
+
+	public PropertiesModel dateFormat(String format) {
+		simpleDateFormat = new SimpleDateFormat(format);
 		return this;
 	}
 }

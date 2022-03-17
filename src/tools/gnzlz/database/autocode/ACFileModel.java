@@ -4,421 +4,112 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-
-import tools.gnzlz.database.model.DBModel;
-import tools.gnzlz.database.model.DBTable;
 
 public class ACFileModel {
-	
+
 	public static void createFile(ACDataBase dataBase) {
 		try {
 			for (ACTable table : dataBase.tables()) {
-				System.out.println("creating model "+table.tableCamelCase()+" | path:" + path(dataBase)+table.tableCamelCase()+".java");
-				File file = new File(path(dataBase)+table.tableCamelCase()+".java");
-				if(!file.exists())
+				File file = new File(path(dataBase, table)+nameF(table)+".java");
+				if(!file.exists()) {
 					Files.createFile(file.toPath());
-				FileWriter fileWriter = new FileWriter(file.toString());
-				fileWriter.write(packages(dataBase));
-				fileWriter.write(line(2));
-				fileWriter.write(imports(dataBase,table));
-				fileWriter.write(line(1));
-				fileWriter.write(dbModelName(table));
-				fileWriter.write(line(2));
-				fileWriter.write(tableName(table));
-				fileWriter.write(line(1));
-				fileWriter.write(columnsVars(table));
-				fileWriter.write(line(2));
-				fileWriter.write(dbTableConfig(table));
-				fileWriter.write(line(2));
-				fileWriter.write(constructor(table));
-				fileWriter.write(line(2));
-				fileWriter.write(method(table));
-				fileWriter.write(line(2));
-				fileWriter.write(methods(table));
-				fileWriter.write(line(2));
-				fileWriter.write(statics(table));
-				fileWriter.write(line(1));
-				fileWriter.write(end(0));
-				fileWriter.close();
+					FileWriter fileWriter = new FileWriter(file.toString());
+					fileWriter.write(packages(dataBase,table));
+					fileWriter.write(line(2));
+					fileWriter.write(imports(dataBase,table));
+					fileWriter.write(line(1));
+					fileWriter.write(dbModelName(table));
+					fileWriter.write(line(2));
+					fileWriter.write(method(table));
+					fileWriter.write(line(2));
+					fileWriter.write(end(0));
+					fileWriter.close();
+				}
 			}
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/********************************
 	 * path
 	 ********************************/
 
-	private static String modelPackage(ACDataBase dataBase) {
+	static String modelPackage(ACDataBase dataBase,ACTable table) {
 		if(dataBase.configuration.model().modelPackage()!=null)
-			return dataBase.configuration.model().modelPackage();
-		else 
-			return dataBase.configuration.getClass().getPackage().getName() + ".model"; 
+			return dataBase.configuration.model().modelPackage().concat(table.packegeName());
+		else
+			return dataBase.configuration.getClass().getPackage().getName().concat(".model").concat(table.packegeName());
 	}
-	
-//	private static String getPackageName(Class<?> c) {
-//        while (c.isArray()) {
-//            c = c.getComponentType();
-//        }
-//        if (c.isPrimitive()) {
-//            return "java.lang";
-//        } else {
-//            String cn = c.getName();
-//            int dot = cn.lastIndexOf('.');
-//            return (dot != -1) ? cn.substring(0, dot).intern() : "";
-//        }
-//	}
-	
-	private static String path(ACDataBase dataBase) {
-		File file = new File("src/"+(modelPackage(dataBase).replaceAll("[.]", "/")));
+
+	private static String path(ACDataBase dataBase, ACTable table) {
+		File file = new File("src/"+(modelPackage(dataBase, table).replaceAll("[.]", "/")));
 		if(!file.exists())
 			file.mkdirs();
-		return file.getPath()+"\\";
+		return file.getPath()+"/";
 	}
-	
+
+	/********************************
+	 * nameF
+	 ********************************/
+
+	static String prefix() {
+		return "";
+	}
+
+	static String nameF(ACTable table) {
+		return prefix() + table.tableCamelCase();
+	}
+
 	/********************************
 	 * Imports
 	 ********************************/
-	
-	private static String extraImports(ACTable table) {
-		StringBuilder string = new StringBuilder();
-		ArrayList<String> imports = new ArrayList<String>();
-		for (ACColumn column : table.columns()) {
-			String newImport = ACFormat.imports(column.getType());
-			boolean isImported = false;
-			for (String imported : imports) {
-				if(imported.equalsIgnoreCase(newImport)){
-					isImported = true;
-					break;
-				}
-			}
-			if(!isImported) {
-				string.append(newImport);
-				imports.add(newImport);
-			}
-		}
-		
-		return string.toString();
-	}
-	
+
 	private static String imports(ACDataBase dataBase,ACTable table) {
 		return new StringBuilder()
-				.append(extraImports(table))
-				.append("import java.util.ArrayList;").append(line(2))
-				.append("import ").append(dataBase.configuration.getClass().getPackage().getName()).append(".").append(dataBase.configuration.getClass().getSimpleName()).append(";").append(line(1))
-				.append("import ").append(DBModel.class.getPackage().getName()).append(".").append(DBModel.class.getSimpleName()).append(";").append(line(1))
-				.append("import ").append(DBTable.class.getPackage().getName()).append(".").append(DBTable.class.getSimpleName()).append(";").append(line(1))
-				.append("import ").append(ACFileCustomModel.icModelPackage(dataBase)).append(".").append(ACFileCustomModel.nameF(table)).append(";").append(line(1)).toString();
+				.append("import ").append(ACFileCustomModel.modelPackage(dataBase, table)).append(".").append(ACFileCustomModel.nameF(table)).append(";").append(line(1))
+				.append("import ").append(ACFileBaseModel.modelPackage(dataBase, table)).append(".").append(ACFileBaseModel.nameF(table)).append(";").append(line(1)).toString();
 	}
-	
+
 	/********************************
 	 * packages
 	 ********************************/
-	
-	private static String packages(ACDataBase dataBase) {
-		return new StringBuilder().append("package ").append(modelPackage(dataBase)).append(";").toString();
+
+	private static String packages(ACDataBase dataBase, ACTable table) {
+		return new StringBuilder().append("package ").append(modelPackage(dataBase, table)).append(";").toString();
 	}
-	
+
 	/********************************
 	 * modelClass
 	 ********************************/
-	
+
 	private static String dbModelName(ACTable table) {
-		return new StringBuilder().append("public class ").append(table.tableCamelCase()).append(" extends DBModel<").append(table.tableCamelCase()).append("> implements ").append(ACFileCustomModel.nameF(table)).append(" {").toString();
-	}
-	
-	/********************************
-	 * tableConfig
-	 ********************************/
-	
-	private static String dbTableConfig(ACTable table) {
-		return new StringBuilder().append(tab(1)).append("private static final ").append(DBTable.class.getSimpleName()).append(" DBTABLE = ").append(DBTable.class.getSimpleName()).append(".create()").append(line(1))
-				.append(tab(3)).append(addConfiguration(table)).append(line(1))
-				.append(tab(3)).append(addTable(table)).append(addPrimaryKey(table)).append(line(1))
-				.append(tab(3)).append(addColumns(table)).append(line(1))
-				.append(addRelations(table)).append(";").toString();
-	}
-	
-	/********************************
-	 * addConfiguration
-	 ********************************/
-	
-	private static String addConfiguration(ACTable table) {
-		return new StringBuilder().append(".addConfiguration(").append(table.dataBase.configuration.getClass().getSimpleName()).append(".class)").toString();
-	}
-	
-	/********************************
-	 * addTable
-	 ********************************/
-	
-	private static String addTable(ACTable table) {
-		return ".addTable(TABLE)";
-	}
-	
-	/********************************
-	 * addPrimaryKey
-	 ********************************/
-	
-	private static String addPrimaryKey(ACTable table) {
-		ACColumn column = table.primaryKey();
-		if(column == null)
-			return "";
-		return new StringBuilder().append(".addPrimaryKey(").append(column.nameUpperCase()).append(")").toString();
-	}
-	
-	/********************************
-	 * addColumns
-	 ********************************/
-	
-	private static String addColumns(ACTable table) {
-		ArrayList<ACColumn> columns = table.columns();
-		if(!columns.isEmpty()){
-			StringBuilder string = new StringBuilder();
-			for (int i = 0; i < columns.size(); i++) {
-				string.append(columns.get(i).nameUpperCase());
-				if(i != columns.size() - 1) string.append(", ");
-			}
-			
-			return new StringBuilder().append(".addColumns(").append(string).append(")").toString();
-		}
-		return "";
-	}
-	
-	/********************************
-	 * .addRelations
-	 ********************************/
-	
-	private static String addRelations(ACTable table) {
-		String one = addHasOne(table);
-		String many = addHasMany(table);
-		String belongs = addBelongsToMany(table);
-		StringBuilder str = new StringBuilder();
-		
-		if(one.isEmpty() && many.isEmpty() && belongs.isEmpty())
-			return ""; 
-			
-		if(!one.isEmpty())
-			str.append(one);
-		if(!many.isEmpty()) {
-			if(str.length() != 0)
-				str.append(line(1));
-			str.append(many);
-		}
-		if(!belongs.isEmpty()) {
-			if(str.length() != 0)
-				str.append(line(1));
-			str.append(belongs);
-		}
-		return str.toString();
-	}
-	
-	/********************************
-	 * .addHasOne
-	 ********************************/
-	
-	private static String addHasOne(ACTable table) {
-		ArrayList<ACColumn> columns = table.columns();
-		if(!columns.isEmpty()){
-			StringBuilder s = new StringBuilder();
-			boolean line = false;
-			for (int i = 0; i < columns.size(); i++) {
-				ACColumn column = columns.get(i);
-				ArrayList<ACRelation> relations = column.hasOnes();
-				for (int j = 0; j < relations.size(); j++) {
-					if(line) s.append(line(1));
-					s.append(tab(3)).append(addHasOne(column, relations.get(j)));
-					line = true;
-				}
-			}
-			return s.toString();
-		}
-		return "";
-	}
-	
-	private static String addHasOne(ACColumn column,ACRelation relation) {
-		return new StringBuilder().append(".addHasOne(")
-				.append(column.nameUpperCase()).append(", ")
-				.append(relation.relationCamelCaseClass()).append(", ")
-				.append(relation.relationColumnUpperCase())
-				.append(")").toString();
+		return new StringBuilder().append("public class ").append(nameF(table)).append(" extends ")
+				.append(ACFileBaseModel.nameF(table)).append("<").append(nameF(table)).append("> implements ")
+				.append(ACFileCustomModel.nameF(table)).append(" {").toString();
 	}
 
 	/********************************
-	 * addHasMany
-	 ********************************/
-	
-	private static String addHasMany(ACTable table) {
-		ArrayList<ACColumn> columns = table.columns();
-		if(!columns.isEmpty()){
-			StringBuilder s = new StringBuilder();
-			boolean line = false;
-			for (int i = 0; i < columns.size(); i++) {
-				ACColumn column = columns.get(i);
-				ArrayList<ACRelation> relations = column.hasManys();
-				for (int j = 0; j < relations.size(); j++) {
-					if(line) s.append(line(1));
-					s.append(tab(3)).append(addHasMany(column, relations.get(j)));
-					line = true;
-				}
-			}
-			return s.toString();
-		}
-		return "";
-	}
-	
-	private static String addHasMany(ACColumn column, ACRelation relation) {
-		return new StringBuilder().append(".addHasMany(")
-				.append(column.nameUpperCase()).append(", ")
-				.append(relation.relationCamelCaseClass()).append(", ")
-				.append(relation.relationColumnUpperCase())
-				.append(")").toString();
-	}
-	
-	/********************************
-	 * addHasMany
-	 ********************************/
-	
-	private static String addBelongsToMany(ACTable table) {
-		ArrayList<ACColumn> columns = table.columns();
-		if(!columns.isEmpty()){
-			StringBuilder s = new StringBuilder();
-			boolean line = false;
-			for (int i = 0; i < columns.size(); i++) {
-				ACColumn column = columns.get(i);
-				ArrayList<ACManyToMany> relations = column.belongsToManys();
-				for (int j = 0; j < relations.size(); j++) {
-					if(line) s.append(line(1));
-					s.append(tab(3)).append(addBelongsToMany(column, relations.get(j)));
-					line = true;
-				}
-			}
-			return s.toString();
-		}
-		return "";
-	}
-	
-	private static String addBelongsToMany(ACColumn column, ACManyToMany relation) {
-		return new StringBuilder().append(".addBelongsToMany(")
-				.append(column.nameUpperCase()).append(", ")
-				.append(relation.relationInternalKey1UpperCase()).append(", ")
-				.append(relation.relationInternalCamelCaseClass()).append(", ")
-				.append(relation.relationInternalKey2UpperCase()).append(", ")
-				.append(relation.relationForeignCamelCaseClass()).append(", ")
-				.append(relation.relationForeignKeyUpperCase())
-				.append(")").toString();
-	}
-
-	/********************************
-	 * tableName
+	 * method
 	 ********************************/
 
-	private static String tableName(ACTable table) {
-		return new StringBuilder().append(tab(1)).append("public static final String TABLE = \"").append(table.table()).append("\";").toString();
-	}
-	
-	/********************************
-	 * columnsVar
-	 ********************************/
-	
-	private static String columnsVars(ACTable table) {
-		ArrayList<ACColumn> columns = table.columns();
-		if(!columns.isEmpty()){
-			StringBuilder string = new StringBuilder();
-			for (int i = 0; i < columns.size(); i++) {
-				string.append(tab(1)).append("public static final String ").append(columns.get(i).nameUpperCase()).append(" = ")
-					.append("\"").append(columns.get(i).name()).append("\";");
-				if(i != columns.size() - 1) string.append(line(1));
-			}
-			
-			return string.toString();
-		}
-		return "";
-	}
-
-	/********************************
-	 * constructor
-	 ********************************/
-	
-	private static String constructor(ACTable table) {
-		return new StringBuilder().append(tab(1)).append("public ").append(table.tableCamelCase()).append("() {").append(line(1))
-				.append(tab(2)).append("super(DBTABLE);").append(line(1))
+	private static String method(ACTable table) {
+		return new StringBuilder()
+				.append(tab(1)).append("@Override").append(line(1))
+				.append(tab(1)).append("public ").append(nameF(table)).append(" modelDB() {").append(line(1))
+				.append(tab(2)).append("return this;").append(line(1))
 				.append(tab(1)).append("}").toString();
 	}
 	
 	/********************************
-	 * constructor
+	 * end
 	 ********************************/
 	
 	private static String end(int n) {
 		return new StringBuilder().append(tab(n)).append("}").toString();
 	}
 	
-	/********************************
-	 * method
-	 ********************************/
-	
-	private static String methods(ACTable table) {
-		ArrayList<ACColumn> columns = table.columns();
-		if(!columns.isEmpty()){
-			StringBuilder s = new StringBuilder();
-			for (int i = 0; i < columns.size(); i++) {
-				if(i != 0) s.append(line(2));
-				s.append(method(table, columns.get(i)));
-			}
-			return s.toString();
-		}
-		return "";
-	}
-	
-	private static String method(ACTable table) {
-		return new StringBuilder()
-				.append(tab(1)).append("@Override").append(line(1))
-				.append(tab(1)).append("public ").append(table.tableCamelCase()).append(" modelDB() {").append(line(1))
-				.append(tab(2)).append("return this;").append(line(1))
-				.append(tab(1)).append("}").toString();
-	}
-	
-	private static String method(ACTable table,ACColumn column) {
-		String type = ACFormat.typeData(column.type());
-		String value = ACFormat.typeValue(column.type());
-		
-		return new StringBuilder()
-				.append(tab(1)).append("public ").append(type).append(" ").append(column.nameCamelCase()).append("() {").append(line(1))
-				.append(tab(2)).append("return get(").append(column.nameUpperCase()).append(").").append(value).append(line(1))
-				.append(tab(1)).append("}").append(line(2))
-				.append(tab(1)).append("public ").append(table.tableCamelCase()).append(" ").append(column.nameCamelCase()).append("(").append(type).append(" ").append(column.nameCamelCase()).append(") {").append(line(1))
-				.append(tab(2)).append("set(").append(column.nameUpperCase()).append(", ").append(column.nameCamelCase()).append(");").append(line(1))
-				.append(tab(2)).append("return this;").append(line(1)).append(tab(1)).append("}").toString();
-	}
-	
-	/********************************
-	 * statics
-	 ********************************/
-	
-	private static String statics(ACTable table) {
-		return new StringBuilder()
-				.append(tab(1)).append("public static ").append(table.tableCamelCase()).append(" find(Object primaryKey) {").append(line(1))
-				.append(tab(2)).append("return ").append(table.tableCamelCase()).append(".find(").append(table.tableCamelCase()).append(".class,primaryKey);").append(line(1))
-				.append(tab(1)).append("}").append(line(2))
-				.append(tab(1)).append("public static ").append(table.tableCamelCase()).append(" find(String column, Object value) {").append(line(1))
-				.append(tab(2)).append("return ").append(table.tableCamelCase()).append(".find(").append(table.tableCamelCase()).append(".class,column,value);").append(line(1))
-				.append(tab(1)).append("}").append(line(2))
-				.append(tab(1)).append("public static ArrayList<").append(table.tableCamelCase()).append("> find(Object ... primaryKeys) {").append(line(1))
-				.append(tab(2)).append("return ").append(table.tableCamelCase()).append(".findIn(").append(table.tableCamelCase()).append(".class,primaryKeys);").append(line(1))
-				.append(tab(1)).append("}").append(line(2))
-				.append(tab(1)).append("public static ArrayList<").append(table.tableCamelCase()).append("> find(String column,Object ... values) {").append(line(1))
-				.append(tab(2)).append("return ").append(table.tableCamelCase()).append(".findIn(").append(table.tableCamelCase()).append(".class,column,values);").append(line(1))
-				.append(tab(1)).append("}").append(line(2))
-				.append(tab(1)).append("public static ArrayList<").append(table.tableCamelCase()).append("> findAll(String column,Object value) {").append(line(1))
-				.append(tab(2)).append("return ").append(table.tableCamelCase()).append(".findAll(").append(table.tableCamelCase()).append(".class,column,value);").append(line(1))
-				.append(tab(1)).append("}").append(line(2))
-				.append(tab(1)).append("public static ArrayList<").append(table.tableCamelCase()).append("> list() {").append(line(1))
-				.append(tab(2)).append("return ").append(table.tableCamelCase()).append(".all(").append(table.tableCamelCase()).append(".class);").append(line(1))
-				.append(tab(1)).append("}").toString();
-	}
 	
 	/********************************
 	 * tab

@@ -7,14 +7,21 @@ import tools.gnzlz.database.model.DBModel;
 public class ACTable {
 	
 	private final String table;
+
+	private final String packegeName;
 	
 	private ArrayList<ACColumn> columns;
 	
 	final ACDataBase dataBase;
 	
-	ACTable(String table, ACDataBase acDataBase) {
+	ACTable(String table, String packegeName, ACDataBase acDataBase) {
 		this.table = table;
+		this.packegeName = packegeName;
 		this.dataBase = acDataBase;
+	}
+
+	String packegeName() {
+		return packegeName;
 	}
 	
 	String table() {

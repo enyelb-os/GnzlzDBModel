@@ -105,7 +105,7 @@ public class GWhere {
 	 * query
 	 ***************************/
 	
-	public boolean query(Query<?> query){
+	public boolean query(Query<?,?> query){
 		if(query != null){
 			String s = "";
 			if(query instanceof IWhere<?>)

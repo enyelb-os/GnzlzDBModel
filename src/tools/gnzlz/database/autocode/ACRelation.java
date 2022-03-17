@@ -31,6 +31,6 @@ public class ACRelation {
 	}
 	
 	String relationCamelCaseClass() {
-		return ACFormat.camelCaseClass(relations).concat(".class");
+		return relationCamelCase().concat(".class");
 	}
 }

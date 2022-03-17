@@ -31,6 +31,13 @@ public class DWhere{
 	}
 	
 	public String where() {
+		if(value().equalsIgnoreCase("NULL")){
+			if(operator.equalsIgnoreCase("<>")){
+				return column().concat(" IS NOT ").concat(value());
+			}else{
+				return column().concat(" IS ").concat(not()).concat(" ").concat(value());
+			}
+		}
 		return not().concat(column()).concat(" ").concat(operator).concat(" ").concat(value());
 	}
 	

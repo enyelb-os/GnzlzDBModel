@@ -30,11 +30,11 @@ public class ACColumn {
 	}
 	
 	public String nameCamelCase() {
-		return ACFormat.camelCaseMethod(name);
+		return ACFormat.camelCaseMethod(ACFormat.beginValidNumber(name));
 	}
 	
 	public String nameUpperCase() {
-		return name.toUpperCase();
+		return ACFormat.beginValidNumber(name).toUpperCase();
 	}
 	
 	/****************************
