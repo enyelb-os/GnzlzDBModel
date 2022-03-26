@@ -277,7 +277,7 @@ public class DBModel<M extends DBModel<M>>{
 	 * Set
 	 ***********************/
 	
-	public void set(String name, Object object) {
+	public M set(String name, Object object) {
 		if(name != null && object != null) {
 			boolean exists = false;
 			for (DBObject dbObject : columns()) {
@@ -296,13 +296,16 @@ public class DBModel<M extends DBModel<M>>{
 				columns().add(new DBObject(name, object, null));
 			}
 		}
+
+		return (M) this;
 	}
 	
-	public void set(int i, Object object) {
+	public M set(int i, Object object) {
 		if(object != null) {
 			DBObject dbObject = columns().get(i);
 			if(dbObject != null) dbObject.object(object);
 		}
+		return (M) this;
 	}
 	
 	/***********************
@@ -402,7 +405,6 @@ public class DBModel<M extends DBModel<M>>{
 						return primaryKey().object.equals(aux);
 					}
 				}
-				
 				return false;
 			}
 		}
@@ -564,6 +566,31 @@ public class DBModel<M extends DBModel<M>>{
 	public M find(String column) {
 		return find(get(column));
 	}
+
+	/***********************
+	 * Find Static
+	 ***********************/
+
+	protected static <T extends DBModel<?>> T find(Class<T> c, DBTable table, DBColumn column, Object value) {
+		if(table != null && value != null && column != null) {
+			return (T) table.query(Select.create().from(table.table()).where(column.name(), value).limit(1)).executeSingle(c);
+		}
+		return (T) create(c).primaryKey(value).find();
+	}
+
+	public static <T extends DBModel<?>> T find(Class<T> c, DBTable table, String column, Object value) {
+		if(table != null) {
+			return find(c,table,table.get(column),value);
+		}
+		return (T) create(c).set(column,value).find();
+	}
+
+	public static <T extends DBModel<?>> T find(Class<T> c, DBTable table, Object primaryKey) {
+		if(table != null) {
+			return find(c,table,table.primaryKey(),primaryKey);
+		}
+		return (T) create(c).primaryKey(primaryKey).find();
+	}
 	
 	/***********************
 	 * FindAll
@@ -582,11 +609,35 @@ public class DBModel<M extends DBModel<M>>{
 	public ArrayList<M> findAll(String column) {
 		return findAll(get(column));
 	}
+
+	/***********************
+	 * FindAll Static
+	 ***********************/
+
+	public static <T extends DBModel<?>> ArrayList<T> findAll(Class<T> c, DBTable table, DBColumn column, Object value) {
+		if(table != null && column !=null && value != null)
+			return (ArrayList<T>) table.query(Select.create().from(table.table()).where(column.name(), value)).executeQuery(c);
+		return new ArrayList<T>();
+	}
+
+	public static <T extends DBModel<?>> ArrayList<T> findAll(Class<T> c,DBTable table, Object value) {
+		if(table != null) {
+			return findAll(c, table, table.primaryKey(), value);
+		}
+		return new ArrayList<T>();
+	}
+
+	public static <T extends DBModel<?>> ArrayList<T> findAll(Class<T> c,DBTable table, String column, Object value) {
+		if(table != null) {
+			return findAll(c, table, table.get(column), value);
+		}
+		return new ArrayList<T>();
+	}
 	
 	/***********************
 	 * Find IN
 	 ***********************/
-	
+
 	ArrayList<M> findIn(DBObject column, Object ... primaryKeys) {
 		if(table != null && column !=null) {
 			if(primaryKeys != null) {
@@ -595,45 +646,41 @@ public class DBModel<M extends DBModel<M>>{
 		}
 		return new ArrayList<M>();
 	}
-	
+
 	protected ArrayList<M> findIn(Object ... primaryKeys) {
 		return findIn(primaryKey(), primaryKeys);
 	}
-	
+
 	protected ArrayList<M> findIn(String column,Object ... primaryKeys) {
 		return findIn(get(column), primaryKeys);
 	}
-	
+
 	/***********************
-	 * Find Static
+	 * Find IN Static
 	 ***********************/
 	
-	public static <T extends DBModel<?>> T find(Class<T> c, Object primaryKey) {
-		T model = create(c); 
-		model.primaryKey().object(primaryKey);
-		return (T) model.find();
+	public static <T extends DBModel<?>> ArrayList<T> findIn( Class<T> c,DBTable table, DBColumn column, Object ... values) {
+		if(table != null && column !=null) {
+			if(values != null) {
+				return (ArrayList<T>) table.query(Select.create().from(table.table()).in(column.name(), values)).executeQuery(c);
+			}
+		}
+		return new ArrayList<T>();
+	}
+
+	public static <T extends DBModel<?>> ArrayList<T> findIn( Class<T> c, DBTable table, Object ... primaryKeys) {
+		if(table != null) {
+			return findIn(c, table, table.primaryKey(), primaryKeys);
+		}
+		return new ArrayList<T>();
 	}
 	
-	public static <T extends DBModel<?>> T find(Class<T> c, String column, Object value) {
-		T model = create(c); 
-		model.set(column, value);
-		return (T) model.find(column);
+	public static <T extends DBModel<?>> ArrayList<T> findIn(Class<T> c,  DBTable table, String column, Object ... values) {
+		if(table != null) {
+			return findIn(c, table, table.get(column), values);
+		}
+		return new ArrayList<T>();
 	}
-	
-	public static <T extends DBModel<?>> ArrayList<T> findIn( Class<T> c, Object ... primaryKeys) {
-		return (ArrayList<T>) create(c).findIn(primaryKeys);
-	}
-	
-	public static <T extends DBModel<?>> ArrayList<T> findIn(Class<T> c, String column, Object ... value) {
-		return (ArrayList<T>) create(c).findIn(column,value);
-	}
-	
-	public static <T extends DBModel<?>> ArrayList<T> findAll(Class<T> c, String column, Object value) {
-		T model = create(c); 
-		model.set(column, value);
-		return (ArrayList<T>) model.findAll(column);
-	}
-	
 	
 	/***********************
 	 * All
@@ -642,12 +689,17 @@ public class DBModel<M extends DBModel<M>>{
 	public ArrayList<M> all() {
 		if(table != null)
 			return (ArrayList<M>) table.query(Select.create().from(table.table())).executeQuery(getClass());
-		return null;
+		return new ArrayList<M>();
 	}
+
+	/***********************
+	 * All Static
+	 ***********************/
 	
-	public static <T extends DBModel<?>> ArrayList<T> all(Class<T> c) {
-		T model = create(c);
-		return (ArrayList<T>) model.all();
+	public static <T extends DBModel<?>> ArrayList<T> all(Class<T> c, DBTable table) {
+		if(table != null)
+			return (ArrayList<T>) table.query(Select.create().from(table.table())).executeQuery(c);
+		return new ArrayList<T>();
 	}
 
 	/***********************
@@ -666,7 +718,15 @@ public class DBModel<M extends DBModel<M>>{
 		return null;
 	}
 
-	public static <M extends DBModel<M>> Select<M> select(Class<M> c) {
-		return create(c).select();
+	public static <M extends DBModel<M>> Select<M> select(Class<M> c, DBTable table) {
+		if(table != null) {
+			Select<M> select = new Select<M>();
+			select.table(table.table(), "",null);
+			select.execute(() -> {
+				return new DBQuery<M>(table.connection(), c , select);
+			});
+			return select;
+		}
+		return null;
 	}
 }

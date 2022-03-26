@@ -7,7 +7,7 @@ public class DBROneToOne {
 	private String localaKey;
 	private Class<?> relationLocal;
 	private DBModel<?> modelLocal;
-	
+
 	<T extends DBModel<?>> DBROneToOne(String localKey, Class<T> relationLocal) {
 		this.relationLocal = relationLocal;
 		this.localaKey = localKey;
@@ -16,7 +16,6 @@ public class DBROneToOne {
 	Class<?> Class() {
 		return relationLocal;
 	}
-
 
 	<T extends DBModel<?>> DBModel<?> modelLocal() {
 		if(modelLocal == null) modelLocal = DBModel.create((Class<T>) relationLocal);
