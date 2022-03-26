@@ -40,8 +40,6 @@ public class DBObject {
 		this.object = object;
 	}
 	
-	
-	
 	public DBObject object(Object object) {
 		if(!equals(this.object, object)) {
 			isChange = true;

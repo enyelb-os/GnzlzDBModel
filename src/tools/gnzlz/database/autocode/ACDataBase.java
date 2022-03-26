@@ -83,6 +83,7 @@ public class ACDataBase {
 			ACFileBaseModel.createFile(this);
 			ACFileCustomModel.createFile(this);
 			ACFileModel.createFile(this);
+			ACFileAttributeModel.createFile(this);
 		}
 	}
 	
