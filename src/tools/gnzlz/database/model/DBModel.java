@@ -64,7 +64,7 @@ public class DBModel<M extends DBModel<M>>{
 		models().add(model);
 		return model;
 	}
-	
+
 	/***********************
 	 * query
 	 ***********************/
@@ -74,6 +74,14 @@ public class DBModel<M extends DBModel<M>>{
 	}
 	
 	public DBExecuteQuery query(String query) {
+		return table.query(query);
+	}
+
+	public static <M extends DBModel<M>> DBExecuteQuery query(DBTable table, Query<?,M> query) {
+		return table.query(query);
+	}
+
+	public static DBExecuteQuery query(DBModel table, String query) {
 		return table.query(query);
 	}
 	
@@ -415,7 +423,7 @@ public class DBModel<M extends DBModel<M>>{
 	 * hasOne - foreignkey
 	 ***********************/
 	
-	private <T extends DBModel<?>> T hasOne(DBObject dbObject, Class<T> c, String localKey) {
+	private <T extends DBModel<T>> T hasOne(DBObject dbObject, Class<T> c, String localKey) {
 		if(dbObject != null) {
 			if(dbObject.column != null) {
 				DBROneToOne relations = localKey != null ? dbObject.column.getHasOne(c, localKey) : dbObject.column.getHasOne(c);
@@ -427,7 +435,7 @@ public class DBModel<M extends DBModel<M>>{
 		return null;
 	}
 	
-	private <T extends DBModel<?>> T hasOneFor(Class<T> c, String localKey) {
+	private <T extends DBModel<T>> T hasOneFor(Class<T> c, String localKey) {
 		for (DBObject dbObject : columns()) {
 			T dbModel = hasOne(dbObject, c, localKey);
 			if(dbModel != null) return dbModel;
@@ -436,19 +444,19 @@ public class DBModel<M extends DBModel<M>>{
 	}
 	
 	
-	public <T extends DBModel<?>> T hasOne(String foreignkey, Class<T> c, String localKey) {			
+	public <T extends DBModel<T>> T hasOne(String foreignkey, Class<T> c, String localKey) {
 		return hasOne(get(foreignkey), c, localKey);
 	}
 	
-	public <T extends DBModel<?>> T hasOne(Class<T> c, String localKey) {			
+	public <T extends DBModel<T>> T hasOne(Class<T> c, String localKey) {
 		return hasOneFor(c, localKey);
 	}
 	
-	public <T extends DBModel<?>> T hasOne(String foreignkey, Class<T> c) {			
+	public <T extends DBModel<T>> T hasOne(String foreignkey, Class<T> c) {
 		return hasOne(get(foreignkey), c, null);
 	}
 	
-	public <T extends DBModel<?>> T hasOne(Class<T> c) {
+	public <T extends DBModel<T>> T hasOne(Class<T> c) {
 		return hasOneFor(c, null);
 	}
 	
@@ -456,7 +464,7 @@ public class DBModel<M extends DBModel<M>>{
 	 * hasMany - foreignkey
 	 ***********************/
 	
-	private <T extends DBModel<?>> ArrayList<T> hasMany(DBObject dbObject, Class<T> c, String foreignKey) {
+	private <T extends DBModel<T>> ArrayList<T> hasMany(DBObject dbObject, Class<T> c, String foreignKey) {
 		if(dbObject != null) {
 			if(dbObject.column != null) {
 				DBROneToMany relations = foreignKey != null ? dbObject.column.getHasMany(c, foreignKey) : dbObject.column.getHasMany(c);
@@ -467,7 +475,7 @@ public class DBModel<M extends DBModel<M>>{
 		return null;
 	}
 	
-	private <T extends DBModel<?>> ArrayList<T> hasManyFor(Class<T> c, String foreignKey) {
+	private <T extends DBModel<T>> ArrayList<T> hasManyFor(Class<T> c, String foreignKey) {
 		for (DBObject dbObject : columns()) {
 			ArrayList<T> list = hasMany(dbObject, c, foreignKey);
 			if(list != null) return list;
@@ -475,19 +483,19 @@ public class DBModel<M extends DBModel<M>>{
 		return null;
 	}
 	
-	public <T extends DBModel<?>> ArrayList<T> hasMany(String localkey, Class<T> c, String foreignKey) {			
+	public <T extends DBModel<T>> ArrayList<T> hasMany(String localkey, Class<T> c, String foreignKey) {
 		return hasMany(get(localkey), c, foreignKey);
 	}
 	
-	public <T extends DBModel<?>> ArrayList<T> hasMany(Class<T> c, String foreignKey) {
+	public <T extends DBModel<T>> ArrayList<T> hasMany(Class<T> c, String foreignKey) {
 		return hasManyFor(c, foreignKey);
 	}
 	
-	public <T extends DBModel<?>> ArrayList<T> hasMany(String localkey, Class<T> c) {			
+	public <T extends DBModel<T>> ArrayList<T> hasMany(String localkey, Class<T> c) {
 		return hasMany(get(localkey), c, null);
 	}
 	
-	public <T extends DBModel<?>> ArrayList<T> hasMany(Class<T> c) { 
+	public <T extends DBModel<T>> ArrayList<T> hasMany(Class<T> c) {
 		return hasManyFor(c, null);
 	}
 	
@@ -495,7 +503,7 @@ public class DBModel<M extends DBModel<M>>{
 	 * hasMany - foreignkey
 	 ***********************/
 	
-	private <T,I extends DBModel<?>> ArrayList<T> belongsToMany(DBObject dbObject, String internalKey1, Class<I> relationInternal, String internalKey2, Class<T> relationForeign, String foreignKey) {
+	private <T extends DBModel<T>,I extends DBModel<I>> ArrayList<T> belongsToMany(DBObject dbObject, String internalKey1, Class<I> relationInternal, String internalKey2, Class<T> relationForeign, String foreignKey) {
 		if(dbObject != null) {
 			if(dbObject.column != null) {
 				DBRManyToMany relations = 
@@ -513,7 +521,7 @@ public class DBModel<M extends DBModel<M>>{
 		return null;
 	}
 	
-	private <T,I extends DBModel<?>> ArrayList<T> belongsToManyFor(String internalKey1, Class<I> relationInternal, String internalKey2, Class<T> relationForeign, String foreignKey) {
+	private <T extends DBModel<T>,I extends DBModel<I>> ArrayList<T> belongsToManyFor(String internalKey1, Class<I> relationInternal, String internalKey2, Class<T> relationForeign, String foreignKey) {
 		for (DBObject dbObject : columns()) {
 			ArrayList<T> list = belongsToMany(dbObject, internalKey1, relationInternal, internalKey2, relationForeign, foreignKey);
 			if(list != null) return list;
@@ -521,31 +529,31 @@ public class DBModel<M extends DBModel<M>>{
 		return null;
 	}
 	
-	public <T,I extends DBModel<?>>  ArrayList<T> belongsToMany(Class<I> internal, Class<T> foreign) {
+	public <T extends DBModel<T>,I extends DBModel<I>>  ArrayList<T> belongsToMany(Class<I> internal, Class<T> foreign) {
 		return belongsToManyFor(null, internal, null, foreign, null);
 	}
 	
-	public <T,I extends DBModel<?>>  ArrayList<T> belongsToMany(String internalKey1, Class<I> relationInternal, String internalKey2, Class<T> relationForeign) {			
+	public <T extends DBModel<T>,I extends DBModel<I>>  ArrayList<T> belongsToMany(String internalKey1, Class<I> relationInternal, String internalKey2, Class<T> relationForeign) {
 		return belongsToManyFor(internalKey1, relationInternal, internalKey2, relationForeign, null);
 	}
 	
-	public <T,I extends DBModel<?>>  ArrayList<T> belongsToMany(String localKey, String internalKey1, Class<I> relationInternal, String internalKey2, Class<T> relationForeign) {			
+	public <T extends DBModel<T>, I extends DBModel<I>>  ArrayList<T> belongsToMany(String localKey, String internalKey1, Class<I> relationInternal, String internalKey2, Class<T> relationForeign) {
 		return belongsToMany(get(localKey), null, relationInternal, null, relationForeign, null);
 	}
 	
-	public <T,I extends DBModel<?>>  ArrayList<T> belongsToMany(String internalKey1, Class<I> relationInternal, String internalKey2, Class<T> relationForeign, String foreignKey) {			
+	public <T extends DBModel<T>,I extends DBModel<I>>  ArrayList<T> belongsToMany(String internalKey1, Class<I> relationInternal, String internalKey2, Class<T> relationForeign, String foreignKey) {
 		return belongsToManyFor(internalKey1, relationInternal, internalKey2, relationForeign, foreignKey);
 	}
 	
-	public <T,I extends DBModel<?>>  ArrayList<T> belongsToMany(String localKey, String internalKey1, Class<I> relationInternal, String internalKey2, Class<T> relationForeign, String foreignKey) {			
+	public <T extends DBModel<T>,I extends DBModel<I>>  ArrayList<T> belongsToMany(String localKey, String internalKey1, Class<I> relationInternal, String internalKey2, Class<T> relationForeign, String foreignKey) {
 		return belongsToMany(get(localKey), internalKey1, relationInternal, internalKey2, relationForeign, foreignKey);
 	}
 	
-	public <T,I extends DBModel<?>>  ArrayList<T> belongsToMany(Class<I> relationInternal, Class<T> relationForeign, String foreignKey) {			
+	public <T extends DBModel<T>,I extends DBModel<I>>  ArrayList<T> belongsToMany(Class<I> relationInternal, Class<T> relationForeign, String foreignKey) {
 		return belongsToManyFor(null, relationInternal, null, relationForeign, foreignKey);
 	}
 	
-	public <T,I extends DBModel<?>>  ArrayList<T> belongsToMany(String localKey, Class<I> relationInternal, Class<T> relationForeign, String foreignKey) {			
+	public <T extends DBModel<T>,I extends DBModel<I>>  ArrayList<T> belongsToMany(String localKey, Class<I> relationInternal, Class<T> relationForeign, String foreignKey) {
 		return belongsToMany(get(localKey), null, relationInternal, null, relationForeign, foreignKey);
 	}
 	
@@ -571,21 +579,21 @@ public class DBModel<M extends DBModel<M>>{
 	 * Find Static
 	 ***********************/
 
-	protected static <T extends DBModel<?>> T find(Class<T> c, DBTable table, DBColumn column, Object value) {
+	protected static <T extends DBModel<T>> T find(Class<T> c, DBTable table, DBColumn column, Object value) {
 		if(table != null && value != null && column != null) {
 			return (T) table.query(Select.create().from(table.table()).where(column.name(), value).limit(1)).executeSingle(c);
 		}
 		return (T) create(c).primaryKey(value).find();
 	}
 
-	public static <T extends DBModel<?>> T find(Class<T> c, DBTable table, String column, Object value) {
+	public static <T extends DBModel<T>> T find(Class<T> c, DBTable table, String column, Object value) {
 		if(table != null) {
 			return find(c,table,table.get(column),value);
 		}
 		return (T) create(c).set(column,value).find();
 	}
 
-	public static <T extends DBModel<?>> T find(Class<T> c, DBTable table, Object primaryKey) {
+	public static <T extends DBModel<T>> T find(Class<T> c, DBTable table, Object primaryKey) {
 		if(table != null) {
 			return find(c,table,table.primaryKey(),primaryKey);
 		}
@@ -614,20 +622,20 @@ public class DBModel<M extends DBModel<M>>{
 	 * FindAll Static
 	 ***********************/
 
-	public static <T extends DBModel<?>> ArrayList<T> findAll(Class<T> c, DBTable table, DBColumn column, Object value) {
+	public static <T extends DBModel<T>> ArrayList<T> findAll(Class<T> c, DBTable table, DBColumn column, Object value) {
 		if(table != null && column !=null && value != null)
 			return (ArrayList<T>) table.query(Select.create().from(table.table()).where(column.name(), value)).executeQuery(c);
 		return new ArrayList<T>();
 	}
 
-	public static <T extends DBModel<?>> ArrayList<T> findAll(Class<T> c,DBTable table, Object value) {
+	public static <T extends DBModel<T>> ArrayList<T> findAll(Class<T> c,DBTable table, Object value) {
 		if(table != null) {
 			return findAll(c, table, table.primaryKey(), value);
 		}
 		return new ArrayList<T>();
 	}
 
-	public static <T extends DBModel<?>> ArrayList<T> findAll(Class<T> c,DBTable table, String column, Object value) {
+	public static <T extends DBModel<T>> ArrayList<T> findAll(Class<T> c,DBTable table, String column, Object value) {
 		if(table != null) {
 			return findAll(c, table, table.get(column), value);
 		}
@@ -659,7 +667,7 @@ public class DBModel<M extends DBModel<M>>{
 	 * Find IN Static
 	 ***********************/
 	
-	public static <T extends DBModel<?>> ArrayList<T> findIn( Class<T> c,DBTable table, DBColumn column, Object ... values) {
+	public static <T extends DBModel<T>> ArrayList<T> findIn( Class<T> c,DBTable table, DBColumn column, Object ... values) {
 		if(table != null && column !=null) {
 			if(values != null) {
 				return (ArrayList<T>) table.query(Select.create().from(table.table()).in(column.name(), values)).executeQuery(c);
@@ -668,14 +676,14 @@ public class DBModel<M extends DBModel<M>>{
 		return new ArrayList<T>();
 	}
 
-	public static <T extends DBModel<?>> ArrayList<T> findIn( Class<T> c, DBTable table, Object ... primaryKeys) {
+	public static <T extends DBModel<T>> ArrayList<T> findIn( Class<T> c, DBTable table, Object ... primaryKeys) {
 		if(table != null) {
 			return findIn(c, table, table.primaryKey(), primaryKeys);
 		}
 		return new ArrayList<T>();
 	}
 	
-	public static <T extends DBModel<?>> ArrayList<T> findIn(Class<T> c,  DBTable table, String column, Object ... values) {
+	public static <T extends DBModel<T>> ArrayList<T> findIn(Class<T> c,  DBTable table, String column, Object ... values) {
 		if(table != null) {
 			return findIn(c, table, table.get(column), values);
 		}
@@ -696,7 +704,7 @@ public class DBModel<M extends DBModel<M>>{
 	 * All Static
 	 ***********************/
 	
-	public static <T extends DBModel<?>> ArrayList<T> all(Class<T> c, DBTable table) {
+	public static <T extends DBModel<T>> ArrayList<T> all(Class<T> c, DBTable table) {
 		if(table != null)
 			return (ArrayList<T>) table.query(Select.create().from(table.table())).executeQuery(c);
 		return new ArrayList<T>();

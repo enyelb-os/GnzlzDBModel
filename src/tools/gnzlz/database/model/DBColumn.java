@@ -7,7 +7,7 @@ public class DBColumn {
 	protected String name;
 	protected boolean primaryKey;
 	
-	protected ArrayList<DBROneToOne> hasOne;
+	protected ArrayList<DBROneToOne<?>> hasOne;
 	protected ArrayList<DBROneToMany> hasMany;
 	protected ArrayList<DBRManyToMany> belongsToMany;
 	
@@ -44,26 +44,14 @@ public class DBColumn {
 	 * ForeignKey
 	 ****************************/
 
-	public DBModel<?> foreignKey() {
-		DBROneToOne relation = isForeignKey() ? hasOnes().get(0) : null;
-		return relation != null ? relation.modelLocal() : null;
-	}
 
-	public boolean isForeignKey() {
-		return !hasOnes().isEmpty();
-	}
-
-	public String foreignKeyLabel() {
-		DBROneToOne relation = isForeignKey() ? hasOnes().get(0) : null;
-		return relation != null ? relation.localaKey() : null;
-	}
 
 	/****************************
 	 * HasOne
 	 ****************************/
 	
-	ArrayList<DBROneToOne> hasOnes() {
-		if(hasOne == null) hasOne = new ArrayList<DBROneToOne>();
+	ArrayList<DBROneToOne<?>> hasOnes() {
+		if(hasOne == null) hasOne = new ArrayList<DBROneToOne<?>>();
 		return hasOne;
 	}
 	
