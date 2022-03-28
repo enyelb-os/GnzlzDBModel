@@ -10,7 +10,7 @@ import java.util.Date;
 
 public class ACFormat {
 
-	static String beginValidNumber(String s) {
+	public static String beginValidNumber(String s) {
 		boolean digit = false;
 		for (int i = 0 ; i < s.length(); i++){
 			if(Character.isDigit(s.charAt(i))){
@@ -27,7 +27,7 @@ public class ACFormat {
 		return s;
 	}
 
-	static String camelCaseClass(String s) {
+	public static String camelCaseClass(String s) {
 		s = s.toLowerCase();
 		String temp[] = s.split("_");
 		String newString = "";
@@ -38,7 +38,7 @@ public class ACFormat {
 		return newString;
 	}
 	
-	static String camelCaseMethod(String s) {
+	public static String camelCaseMethod(String s) {
 		s = s.toLowerCase();
 		String temp[] = s.split("_");
 		String newString = "";
@@ -50,7 +50,7 @@ public class ACFormat {
 		return newString;
 	}
 	
-	static String typeData(String type){
+	public static String typeData(String type){
 		String split[] = type.split(" ");
 		type = split == null ? type : split[0];
 		if(type.equalsIgnoreCase("INTEGER") || type.equalsIgnoreCase("INT"))
@@ -89,7 +89,7 @@ public class ACFormat {
 		return "String";
 	}
 	
-	static String typeValue(String type){
+	public static String typeValue(String type){
 		String split[] = type.split(" ");
 		type = split == null ? type : split[0];
 		if(type.equalsIgnoreCase("INTEGER") || type.equalsIgnoreCase("INT"))
@@ -128,7 +128,7 @@ public class ACFormat {
 		return "stringValue();";
 	}
 	
-	static String imports(String type){
+	public static String imports(String type){
 		String split[] = type.split(" ");
 		type = split == null ? type : split[0];
 		
@@ -150,7 +150,7 @@ public class ACFormat {
 		return "";
 	}
 
-	static boolean dateFormat(String type){
+	public static boolean dateFormat(String type){
 		String split[] = type.split(" ");
 		type = split == null ? type : split[0];
 

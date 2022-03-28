@@ -13,14 +13,6 @@ public class DBROneToOne<M extends DBModel<M>> {
 		this.relationLocal = relationLocal;
 		this.localaKey = localKey;
 	}
-
-	Class<?> Class() {
-		return relationLocal;
-	}
-
-	String localaKey() {
-		return localaKey;
-	}
 	
 	public <T extends DBModel<?>> boolean isClass(Class<T> c) {
 		return relationLocal.getName().equals(c.getName());

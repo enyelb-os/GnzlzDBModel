@@ -1,5 +1,6 @@
-package tools.gnzlz.database.autocode;
+package tools.gnzlz.database.autocode.model;
 
+import tools.gnzlz.database.autocode.ACFormat;
 import tools.gnzlz.database.form.DBFormColumn;
 import tools.gnzlz.database.form.DBFormModel;
 import tools.gnzlz.validation.Validation;
