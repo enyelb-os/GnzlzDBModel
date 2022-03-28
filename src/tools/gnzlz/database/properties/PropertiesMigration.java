@@ -9,6 +9,17 @@ public class PropertiesMigration {
 
 	protected ArrayList<DBMigration> migrations;
 
+	protected String migrationPackage;
+
+	/*****************
+	 * migrationPackage
+	 *****************/
+
+	public PropertiesMigration migrationPackage(String migrationPackage) {
+		this.migrationPackage = migrationPackage;
+		return this;
+	}
+
 	/*****************
 	 * migration
 	 *****************/

@@ -14,6 +14,15 @@ public class PTMigration {
 	}
 
 	/*****************
+	 * migrationPackage
+	 *****************/
+
+	public String migrationPackage() {
+		return migration.migrationPackage;
+	}
+
+
+	/*****************
 	 * migrations
 	 *****************/
 

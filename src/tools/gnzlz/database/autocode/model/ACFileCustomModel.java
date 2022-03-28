@@ -1,12 +1,14 @@
-package tools.gnzlz.database.autocode;
+package tools.gnzlz.database.autocode.model;
+
+import tools.gnzlz.database.autocode.ACFormat;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 
-public class ACFileModel {
-
+public class ACFileCustomModel {
+	
 	public static void createFile(ACDataBase dataBase) {
 		try {
 			for (ACTable table : dataBase.tables()) {
@@ -14,7 +16,7 @@ public class ACFileModel {
 				if(!file.exists()) {
 					Files.createFile(file.toPath());
 					FileWriter fileWriter = new FileWriter(file.toString());
-					fileWriter.write(packages(dataBase,table));
+					fileWriter.write(packages(dataBase, table));
 					fileWriter.write(line(2));
 					fileWriter.write(imports(dataBase,table));
 					fileWriter.write(line(1));
@@ -22,84 +24,95 @@ public class ACFileModel {
 					fileWriter.write(line(2));
 					fileWriter.write(method(table));
 					fileWriter.write(line(2));
+					fileWriter.write(example(table));
+					fileWriter.write(line(2));
 					fileWriter.write(end(0));
 					fileWriter.close();
 				}
 			}
-
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-
+	
 	/********************************
 	 * path
 	 ********************************/
 
-	static String modelPackage(ACDataBase dataBase,ACTable table) {
+	static String modelPackage(ACDataBase dataBase, ACTable table) {
 		if(dataBase.configuration.model().modelPackage()!=null)
-			return dataBase.configuration.model().modelPackage().concat(table.packegeName());
-		else
-			return dataBase.configuration.getClass().getPackage().getName().concat(".model").concat(table.packegeName());
+			return dataBase.configuration.model().modelPackage().concat(table.packegeName()).concat(".custom");
+		else 
+			return dataBase.configuration.getClass().getPackage().getName().concat(".model").concat(table.packegeName()).concat(".custom");
 	}
-
+	
 	private static String path(ACDataBase dataBase, ACTable table) {
 		File file = new File("src/"+(modelPackage(dataBase, table).replaceAll("[.]", "/")));
 		if(!file.exists())
 			file.mkdirs();
 		return file.getPath()+"/";
 	}
-
+	
 	/********************************
 	 * nameF
 	 ********************************/
 
 	static String prefix() {
-		return "";
+		return "IC";
 	}
 
 	static String nameF(ACTable table) {
-		return prefix() + table.tableCamelCase();
+		return prefix()+table.tableCamelCase();
 	}
-
+	
 	/********************************
 	 * Imports
 	 ********************************/
-
+	
 	private static String imports(ACDataBase dataBase,ACTable table) {
 		return new StringBuilder()
-				.append("import ").append(ACFileCustomModel.modelPackage(dataBase, table)).append(".").append(ACFileCustomModel.nameF(table)).append(";").append(line(1))
-				.append("import ").append(ACFileBaseModel.modelPackage(dataBase, table)).append(".").append(ACFileBaseModel.nameF(table)).append(";").append(line(1)).toString();
+				.append("import ").append(ACFileModel.modelPackage(dataBase, table)).append(".").append(ACFileModel.nameF(table)).append(";").append(line(1)).toString();
 	}
-
+	
 	/********************************
 	 * packages
 	 ********************************/
-
+	
 	private static String packages(ACDataBase dataBase, ACTable table) {
 		return new StringBuilder().append("package ").append(modelPackage(dataBase, table)).append(";").toString();
 	}
-
+	
 	/********************************
 	 * modelClass
 	 ********************************/
-
+	
 	private static String dbModelName(ACTable table) {
-		return new StringBuilder().append("public class ").append(nameF(table)).append(" extends ")
-				.append(ACFileBaseModel.nameF(table)).append("<").append(nameF(table)).append("> implements ")
-				.append(ACFileCustomModel.nameF(table)).append(" {").toString();
+		return new StringBuilder().append("public interface ").append(nameF(table)).append(" {").toString();
 	}
-
+	
 	/********************************
-	 * method
+	 * addConfiguration
 	 ********************************/
-
+	
+	private static String example(ACTable table) {
+		return new StringBuilder()
+				.append(tab(1)).append("/*******************************************").append(line(1))
+				.append(tab(1)).append(" * @Example").append(line(1))
+				.append(tab(1)).append(" * public default <TypeData> nameMethod() {").append(line(1))
+				.append(tab(1)).append(" * \t\tmodel = ").append(ACFormat.camelCaseMethod(table.tableCamelCase())).append("();").append(line(1))
+				.append(tab(1)).append(" * \t\tcode ... ").append(line(1))
+				.append(tab(1)).append(" * }").append(line(1))
+				.append(tab(1)).append(" *******************************************/").toString();
+	}
+	
+	/********************************
+	 * Method
+	 ********************************/
+	
 	private static String method(ACTable table) {
 		return new StringBuilder()
-				.append(tab(1)).append("@Override").append(line(1))
-				.append(tab(1)).append("public ").append(nameF(table)).append(" modelDB() {").append(line(1))
-				.append(tab(2)).append("return this;").append(line(1))
-				.append(tab(1)).append("}").toString();
+				.append(tab(1)).append("public ").append(table.tableCamelCase()).append(" ").append("modelDB();").toString();
 	}
 	
 	/********************************

@@ -1,4 +1,4 @@
-package tools.gnzlz.database.autocode;
+package tools.gnzlz.database.autocode.model;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 
+import tools.gnzlz.database.autocode.ACFormat;
 import tools.gnzlz.database.model.DBModel;
 import tools.gnzlz.database.model.DBTable;
 import tools.gnzlz.database.query.model.Select;
@@ -15,7 +16,7 @@ public class ACFileBaseModel {
 	public static void createFile(ACDataBase dataBase) {
 		try {
 			for (ACTable table : dataBase.tables()) {
-				System.out.println("creating model "+nameF(table)+" | path:" + path(dataBase,table)+ACFileModel.nameF(table)+".java");
+				System.out.println("creating model "+nameF(table)+" | path:" + path(dataBase,table)+ ACFileModel.nameF(table)+".java");
 				File file = new File(path(dataBase, table)+nameF(table)+".java");
 				if(!file.exists())
 					Files.createFile(file.toPath());

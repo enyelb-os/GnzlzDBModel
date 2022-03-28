@@ -198,6 +198,23 @@ public class DBTable {
 		if(columns == null) columns = new ArrayList<DBColumn>(); 
 		return columns;
 	}
+
+	public ArrayList<String> columnsNames() {
+		ArrayList<String> names = new ArrayList<String>();
+		for (DBColumn dbColumn: columns()) {
+			names.add(dbColumn.name);
+		}
+		return names;
+	}
+
+	public String[] columnsNamesArray() {
+		ArrayList<DBColumn> columns = columns();
+		String[] names = new String[columns.size()];
+		for (int i = 0 ; i < columns.size() ; i++) {
+			names[i] = columns.get(i).name;
+		}
+		return names;
+	}
 	
 	/***********************
 	 * Get

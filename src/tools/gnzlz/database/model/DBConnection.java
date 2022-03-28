@@ -4,7 +4,7 @@ import java.io.File;
 import java.sql.*;
 import java.util.ArrayList;
 
-import tools.gnzlz.database.autocode.ACDataBase;
+import tools.gnzlz.database.autocode.model.ACDataBase;
 import tools.gnzlz.database.properties.PTConnection;
 import tools.gnzlz.database.properties.PropertiesConnection;
 import tools.gnzlz.database.query.migration.CreateDB;

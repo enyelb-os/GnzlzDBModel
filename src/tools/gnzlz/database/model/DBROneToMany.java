@@ -3,14 +3,15 @@ package tools.gnzlz.database.model;
 import java.util.ArrayList;
 
 import tools.gnzlz.database.query.model.Select;
+import tools.gnzlz.database.reflection.DBTableReflection;
 
-public class DBROneToMany {
+public class DBROneToMany<M extends DBModel<M>> {
 	
 	private String foreignKey;
-	private Class<?> relationForeign;
-	private DBModel<?> modelForeign;
+	private Class<M> relationForeign;
+	private DBTable table;
 	
-	<T extends DBModel<?>> DBROneToMany(String foreignKey, Class<T> relationForeign) {
+	DBROneToMany(String foreignKey, Class<M> relationForeign) {
 		this.relationForeign = relationForeign;
 		this.foreignKey = foreignKey;
 	}
@@ -23,17 +24,18 @@ public class DBROneToMany {
 		return relationForeign.getName().equals(c.getName()) && foreignKey.equalsIgnoreCase(column) ;
 	}
 	
-	public ArrayList<DBModel<?>> hasMany(DBModel<?> modelLocal, DBObject localKey) {
+	public ArrayList<M> hasMany(DBModel<?> modelLocal, DBObject localKey) {
 		Select select = Select.create()
-				.table(modelForeign().table(), "", modelForeign().columnsNamesArray())
-				.join(modelLocal.table(), localKey.name, modelForeign().table(), foreignKey)
+				.table(table().table(), "", table().columnsNamesArray())
+				.join(modelLocal.table(), localKey.name, table().table(), foreignKey)
 				.where(modelLocal.table()+"."+localKey.name, localKey.object);
 		
-		return (ArrayList<DBModel<?>>) modelForeign().query(select).executeQuery(modelForeign().getClass());
+		return (ArrayList<M>) DBModel.query(table(),select).executeQuery(relationForeign);
 	}
-	
-	private <T extends DBModel<?>> DBModel<?> modelForeign() {
-		if(modelForeign == null) modelForeign = DBModel.create((Class<T>) relationForeign);
-		return modelForeign;
+
+	private DBTable table() {
+		if(table == null)
+			table = DBTableReflection.dbTable(relationForeign);
+		return table;
 	}
 }

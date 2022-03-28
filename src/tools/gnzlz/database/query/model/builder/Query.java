@@ -6,7 +6,7 @@ import tools.gnzlz.database.model.interfaces.IDialects;
 
 import java.util.ArrayList;
 
-public abstract class Query<Q extends Query<Q,M>,M extends DBModel<M>>{
+public abstract class Query<Q extends Query<Q,M>, M extends DBModel<M>>{
 
 	private Dialect dialect = IDialects.dialectDefault();
 	private IExecute<Q,M> execute;
