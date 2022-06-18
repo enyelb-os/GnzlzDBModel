@@ -15,20 +15,26 @@ public class ACDataBase {
 	public final ArrayList<ACCatalog> catalogs;
 	
 	public static <T extends DBConfiguration> ACDataBase dataBase(Class<T> c) {
-		return new ACDataBase(DBConfiguration.configuration(c));
+		return new ACDataBase(DBConfiguration.configuration(c),"");
+	}
+
+	public static <T extends DBConfiguration> ACDataBase dataBase(Class<T> c, String catalog) {
+		return new ACDataBase(DBConfiguration.configuration(c), catalog);
 	}
 
 	/****************************
 	 * constructor
 	 ****************************/
 
-	<T extends DBConfiguration> ACDataBase(DBConfiguration configuration) {
+	<T extends DBConfiguration> ACDataBase(DBConfiguration configuration, String catalogName) {
 		this.configuration = configuration;
 		this.catalogs = new ArrayList<ACCatalog>();
 
 		ArrayList<DBModel<?>> catalosModel = this.configuration.connection().catalogs();
 		for (DBModel cat: catalosModel) {
 			ACCatalog catalog = new ACCatalog(cat, this);
+			if (!catalogName.isEmpty() && !catalogName.equals(catalog.name))
+				continue;
 			ArrayList<DBModel<?>> schemesModel = this.configuration.connection().schemes(catalog.name);
 			for (DBModel schemeModel: schemesModel) {
 				ACScheme scheme = new ACScheme(schemeModel, catalog);

@@ -37,6 +37,14 @@ public class ACScheme {
 	}
 
 	/***********************
+	 * default
+	 ***********************/
+
+	public String nameDefault() {
+		return this.name.equals("") ? "default" : this.name;
+	}
+
+	/***********************
 	 * method
 	 ***********************/
 
