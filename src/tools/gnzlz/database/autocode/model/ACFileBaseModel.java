@@ -15,32 +15,36 @@ public class ACFileBaseModel {
 	
 	public static void createFile(ACDataBase dataBase) {
 		try {
-			for (ACTable table : dataBase.tables()) {
-				System.out.println("creating model "+nameF(table)+" | path:" + path(dataBase,table)+ ACFileModel.nameF(table)+".java");
-				File file = new File(path(dataBase, table)+nameF(table)+".java");
-				if(!file.exists())
-					Files.createFile(file.toPath());
-				FileWriter fileWriter = new FileWriter(file.toString());
-				fileWriter.write(packages(dataBase, table));
-				fileWriter.write(line(2));
-				fileWriter.write(imports(dataBase,table));
-				fileWriter.write(line(1));
-				fileWriter.write(dbModelName(table));
-				fileWriter.write(line(2));
-				fileWriter.write(tableName(table));
-				fileWriter.write(line(1));
-				fileWriter.write(columnsVars(table));
-				fileWriter.write(line(2));
-				fileWriter.write(dbTableConfig(table));
-				fileWriter.write(line(2));
-				fileWriter.write(constructor(table));
-				fileWriter.write(line(2));
-				fileWriter.write(methods(table));
-				fileWriter.write(line(2));
-				fileWriter.write(statics(table));
-				fileWriter.write(line(1));
-				fileWriter.write(end(0));
-				fileWriter.close();
+			for (ACCatalog catalog: dataBase.catalogs) {
+				for (ACScheme scheme: catalog.schemes) {
+					for (ACTable table : scheme.tables) {
+						System.out.println("creating model " + nameF(table) + " | path:" + path(dataBase, table) + ACFileModel.nameF(table) + ".java");
+						File file = new File(path(dataBase, table) + nameF(table) + ".java");
+						if (!file.exists())
+							Files.createFile(file.toPath());
+						FileWriter fileWriter = new FileWriter(file.toString());
+						fileWriter.write(packages(dataBase, table));
+						fileWriter.write(line(2));
+						fileWriter.write(imports(dataBase, table));
+						fileWriter.write(line(1));
+						fileWriter.write(dbModelName(table));
+						fileWriter.write(line(2));
+						fileWriter.write(tableName(table));
+						fileWriter.write(line(1));
+						fileWriter.write(columnsVars(table));
+						fileWriter.write(line(2));
+						fileWriter.write(dbTableConfig(table, dataBase));
+						fileWriter.write(line(2));
+						fileWriter.write(constructor(table));
+						fileWriter.write(line(2));
+						fileWriter.write(methods(table));
+						fileWriter.write(line(2));
+						fileWriter.write(statics(table));
+						fileWriter.write(line(1));
+						fileWriter.write(end(0));
+						fileWriter.close();
+					}
+				}
 			}
 			
 		} catch (IOException e) {
@@ -88,7 +92,7 @@ public class ACFileBaseModel {
 	}
 
 	static String nameF(ACTable table) {
-		return prefix()+table.tableCamelCase();
+		return prefix()+table.nameCamelCase();
 	}
 
 	/********************************
@@ -113,8 +117,8 @@ public class ACFileBaseModel {
 	private static String extraImports(ACTable table) {
 		StringBuilder string = new StringBuilder();
 		ArrayList<String> imports = new ArrayList<String>();
-		for (ACColumn column : table.columns()) {
-			String newImport = ACFormat.imports(column.getType());
+		for (ACColumn column : table.columns) {
+			String newImport = ACFormat.imports(column.type);
 			existsImport(imports,newImport,string);
 		}
 		return string.toString();
@@ -127,8 +131,8 @@ public class ACFileBaseModel {
 	private static String relationsImports(ACDataBase dataBase, ACTable table) {
 		StringBuilder string = new StringBuilder();
 		ArrayList<String> imports = new ArrayList<String>();
-		for (ACColumn column : table.columns()) {
-			for (ACRelation relation : column.hasOnes()) {
+		for (ACColumn column : table.columns) {
+			/*for (ACRelation relation : column.hasOnes()) {
 				String newImport = "import ".concat(ACFileModel.modelPackage(dataBase,dataBase.table(relation.relation()))).concat(".").concat(relation.relationCamelCase()).concat(";");
 				existsImport(imports,newImport,string);
 			}
@@ -141,9 +145,9 @@ public class ACFileBaseModel {
 				String newImport2 = "import ".concat(ACFileModel.modelPackage(dataBase,dataBase.table(relation.relationInternal()))).concat(".").concat(relation.relationInternalCamelCase()).concat(";");
 				existsImport(imports,newImport1,string);
 				existsImport(imports,newImport2,string);
-			}
+			}*/
 		}
-		String newImport1 = "import ".concat(ACFileModel.modelPackage(dataBase,dataBase.table(table.table()))).concat(".").concat(ACFileModel.nameF(table)).concat(";");
+		String newImport1 = "import ".concat(ACFileModel.modelPackage(dataBase,table)).concat(".").concat(ACFileModel.nameF(table)).concat(";");
 		existsImport(imports,newImport1,string);
 		return string.toString();
 	}
@@ -180,9 +184,9 @@ public class ACFileBaseModel {
 	 * tableConfig
 	 ********************************/
 	
-	private static String dbTableConfig(ACTable table) {
+	private static String dbTableConfig(ACTable table, ACDataBase dataBase) {
 		return new StringBuilder().append(tab(1)).append("private static final ").append(DBTable.class.getSimpleName()).append(" DBTABLE = ").append(DBTable.class.getSimpleName()).append(".create()").append(line(1))
-				.append(tab(3)).append(addConfiguration(table)).append(line(1))
+				.append(tab(3)).append(addConfiguration(table, dataBase)).append(line(1))
 				.append(tab(3)).append(addTable(table)).append(addPrimaryKey(table)).append(line(1))
 				.append(tab(3)).append(addColumns(table)).append(line(1))
 				.append(addRelations(table)).append(";").toString();
@@ -192,8 +196,8 @@ public class ACFileBaseModel {
 	 * addConfiguration
 	 ********************************/
 	
-	private static String addConfiguration(ACTable table) {
-		return new StringBuilder().append(".addConfiguration(").append(table.dataBase.configuration.getClass().getSimpleName()).append(".class)").toString();
+	private static String addConfiguration(ACTable table, ACDataBase dataBase) {
+		return new StringBuilder().append(".addConfiguration(").append(dataBase.configuration.getClass().getSimpleName()).append(".class)").toString();
 	}
 	
 	/********************************
@@ -220,7 +224,7 @@ public class ACFileBaseModel {
 	 ********************************/
 	
 	private static String addColumns(ACTable table) {
-		ArrayList<ACColumn> columns = table.columns();
+		ArrayList<ACColumn> columns = table.columns;
 		if(!columns.isEmpty()){
 			StringBuilder string = new StringBuilder();
 			for (int i = 0; i < columns.size(); i++) {
@@ -266,13 +270,13 @@ public class ACFileBaseModel {
 	 ********************************/
 	
 	private static String addHasOne(ACTable table) {
-		ArrayList<ACColumn> columns = table.columns();
+		ArrayList<ACColumn> columns = table.columns;
 		if(!columns.isEmpty()){
 			StringBuilder s = new StringBuilder();
 			boolean line = false;
 			for (int i = 0; i < columns.size(); i++) {
 				ACColumn column = columns.get(i);
-				ArrayList<ACRelation> relations = column.hasOnes();
+				ArrayList<ACRelation> relations = column.hasOne();
 				for (int j = 0; j < relations.size(); j++) {
 					if(line) s.append(line(1));
 					s.append(tab(3)).append(addHasOne(column, relations.get(j)));
@@ -287,8 +291,8 @@ public class ACFileBaseModel {
 	private static String addHasOne(ACColumn column,ACRelation relation) {
 		return new StringBuilder().append(".addHasOne(")
 				.append(column.nameUpperCase()).append(", ")
-				.append(relation.relationCamelCaseClass()).append(", ")
-				.append(relation.relationColumnUpperCase())
+				.append(relation.pkColumn.table.nameCamelCaseClass()).append(", ")
+				.append(relation.pkColumn.tableColumnUpperCase())
 				.append(")").toString();
 	}
 
@@ -297,13 +301,13 @@ public class ACFileBaseModel {
 	 ********************************/
 	
 	private static String addHasMany(ACTable table) {
-		ArrayList<ACColumn> columns = table.columns();
+		ArrayList<ACColumn> columns = table.columns;
 		if(!columns.isEmpty()){
 			StringBuilder s = new StringBuilder();
 			boolean line = false;
 			for (int i = 0; i < columns.size(); i++) {
 				ACColumn column = columns.get(i);
-				ArrayList<ACRelation> relations = column.hasManys();
+				ArrayList<ACRelation> relations = column.hasMany();
 				for (int j = 0; j < relations.size(); j++) {
 					if(line) s.append(line(1));
 					s.append(tab(3)).append(addHasMany(column, relations.get(j)));
@@ -318,8 +322,8 @@ public class ACFileBaseModel {
 	private static String addHasMany(ACColumn column, ACRelation relation) {
 		return new StringBuilder().append(".addHasMany(")
 				.append(column.nameUpperCase()).append(", ")
-				.append(relation.relationCamelCaseClass()).append(", ")
-				.append(relation.relationColumnUpperCase())
+				.append(relation.fkColumn.table.nameCamelCaseClass()).append(", ")
+				.append(relation.fkColumn.tableColumnUpperCase())
 				.append(")").toString();
 	}
 	
@@ -328,7 +332,7 @@ public class ACFileBaseModel {
 	 ********************************/
 	
 	private static String addBelongsToMany(ACTable table) {
-		ArrayList<ACColumn> columns = table.columns();
+		ArrayList<ACColumn> columns = table.columns;
 		if(!columns.isEmpty()){
 			StringBuilder s = new StringBuilder();
 			boolean line = false;
@@ -336,8 +340,9 @@ public class ACFileBaseModel {
 				ACColumn column = columns.get(i);
 				ArrayList<ACManyToMany> relations = column.belongsToManys();
 				for (int j = 0; j < relations.size(); j++) {
+					ACManyToMany manyToMany = relations.get(j);
 					if(line) s.append(line(1));
-					s.append(tab(3)).append(addBelongsToMany(column, relations.get(j)));
+					s.append(tab(3)).append(addBelongsToMany(manyToMany.relation1, manyToMany.relation2));
 					line = true;
 				}
 			}
@@ -346,14 +351,14 @@ public class ACFileBaseModel {
 		return "";
 	}
 	
-	private static String addBelongsToMany(ACColumn column, ACManyToMany relation) {
+	private static String addBelongsToMany(ACRelation relation1, ACRelation relation2) {
 		return new StringBuilder().append(".addBelongsToMany(")
-				.append(column.nameUpperCase()).append(", ")
-				.append(relation.relationInternalKey1UpperCase()).append(", ")
-				.append(relation.relationInternalCamelCaseClass()).append(", ")
-				.append(relation.relationInternalKey2UpperCase()).append(", ")
-				.append(relation.relationForeignCamelCaseClass()).append(", ")
-				.append(relation.relationForeignKeyUpperCase())
+				.append(relation1.pkColumn.nameUpperCase()).append(", ")
+				.append(relation1.fkColumn.tableColumnUpperCase()).append(", ")
+				.append(relation1.fkColumn.table.nameCamelCaseClass()).append(", ")
+				.append(relation2.fkColumn.tableColumnUpperCase()).append(", ")
+				.append(relation2.pkColumn.table.nameCamelCaseClass()).append(", ")
+				.append(relation2.pkColumn.tableColumnUpperCase())
 				.append(")").toString();
 	}
 
@@ -362,7 +367,7 @@ public class ACFileBaseModel {
 	 ********************************/
 
 	private static String tableName(ACTable table) {
-		return new StringBuilder().append(tab(1)).append("public static final String TABLE = \"").append(table.table()).append("\";").toString();
+		return new StringBuilder().append(tab(1)).append("public static final String TABLE = \"").append(table.name).append("\";").toString();
 	}
 	
 	/********************************
@@ -370,12 +375,12 @@ public class ACFileBaseModel {
 	 ********************************/
 	
 	private static String columnsVars(ACTable table) {
-		ArrayList<ACColumn> columns = table.columns();
+		ArrayList<ACColumn> columns = table.columns;
 		if(!columns.isEmpty()){
 			StringBuilder string = new StringBuilder();
 			for (int i = 0; i < columns.size(); i++) {
 				string.append(tab(1)).append("public static final String ").append(columns.get(i).nameUpperCase()).append(" = ")
-					.append("\"").append(columns.get(i).name()).append("\";");
+					.append("\"").append(columns.get(i).name).append("\";");
 				if(i != columns.size() - 1) string.append(line(1));
 			}
 			
@@ -407,7 +412,7 @@ public class ACFileBaseModel {
 	 ********************************/
 	
 	private static String methods(ACTable table) {
-		ArrayList<ACColumn> columns = table.columns();
+		ArrayList<ACColumn> columns = table.columns;
 		if(!columns.isEmpty()){
 			StringBuilder s = new StringBuilder();
 			for (int i = 0; i < columns.size(); i++) {
@@ -420,11 +425,11 @@ public class ACFileBaseModel {
 	}
 	
 	private static String method(ACTable table,ACColumn column) {
-		String type = ACFormat.typeData(column.type());
-		String value = ACFormat.typeValue(column.type());
+		String type = ACFormat.typeData(column.type);
+		String value = ACFormat.typeValue(column.type);
 
 		StringBuilder str = new StringBuilder();
-		if(ACFormat.dateFormat(column.type())){
+		if(ACFormat.dateFormat(column.type)){
 			str.append(tab(1)).append("public Type ").append(column.nameCamelCase()).append("(String  ").append(column.nameCamelCase()).append(") {").append(line(1))
 				.append(tab(2)).append("set(").append(column.nameUpperCase()).append(", this.dateParse(").append(column.nameCamelCase()).append("));").append(line(1))
 				.append(tab(2)).append("return (Type) this;").append(line(1)).append(tab(1)).append("}").append(line(2));

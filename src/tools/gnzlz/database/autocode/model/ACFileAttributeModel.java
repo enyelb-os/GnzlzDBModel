@@ -15,26 +15,30 @@ public class ACFileAttributeModel {
 	
 	public static void createFile(ACDataBase dataBase) {
 		try {
-			for (ACTable table : dataBase.tables()) {
-				File file = new File(path(dataBase, table)+nameF(table)+".java");
-				if(!file.exists()){
-					Files.createFile(file.toPath());
-					FileWriter fileWriter = new FileWriter(file.toString());
-					fileWriter.write(packages(dataBase, table));
-					fileWriter.write(line(2));
-					fileWriter.write(imports(dataBase,table));
-					fileWriter.write(line(2));
-					fileWriter.write(atModelName(table));
-					//fileWriter.write(line(2));
-					//fileWriter.write(constructor(table));
-					fileWriter.write(line(2));
-					fileWriter.write(methods(table));
-					fileWriter.write(line(2));
-					fileWriter.write(end(0));
-					fileWriter.close();
+			for (ACCatalog catalog: dataBase.catalogs) {
+				for (ACScheme scheme: catalog.schemes) {
+					for (ACTable table: scheme.tables) {
+						File file = new File(path(dataBase, table)+nameF(table)+".java");
+						if(!file.exists()){
+							Files.createFile(file.toPath());
+							FileWriter fileWriter = new FileWriter(file.toString());
+							fileWriter.write(packages(dataBase, table));
+							fileWriter.write(line(2));
+							fileWriter.write(imports(dataBase,table));
+							fileWriter.write(line(2));
+							fileWriter.write(atModelName(table));
+							//fileWriter.write(line(2));
+							//fileWriter.write(constructor(table));
+							fileWriter.write(line(2));
+							fileWriter.write(methods(table));
+							fileWriter.write(line(2));
+							fileWriter.write(end(0));
+							fileWriter.close();
+						}
+					}
 				}
+
 			}
-			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -67,7 +71,7 @@ public class ACFileAttributeModel {
 	}
 
 	static String nameF(ACTable table) {
-		return prefix()+table.tableCamelCase();
+		return prefix()+table.nameCamelCase();
 	}
 
 	/********************************
@@ -122,7 +126,7 @@ public class ACFileAttributeModel {
 	 ********************************/
 	
 	private static String methods(ACTable table) {
-		ArrayList<ACColumn> columns = table.columns();
+		ArrayList<ACColumn> columns = table.columns;
 		if(!columns.isEmpty()){
 			StringBuilder s = new StringBuilder();
 			for (int i = 0; i < columns.size(); i++) {
@@ -135,8 +139,8 @@ public class ACFileAttributeModel {
 	}
 	
 	private static String method(ACTable table,ACColumn column) {
-		String type = ACFormat.typeData(column.type());
-		String value = ACFormat.typeValue(column.type());
+		String type = ACFormat.typeData(column.type);
+		String value = ACFormat.typeValue(column.type);
 
 		StringBuilder str = new StringBuilder();
 

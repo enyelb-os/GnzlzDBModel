@@ -28,9 +28,10 @@ public class PTConnection {
 
 	public StringBuilder urlDBRefresh() {
 		url = new StringBuilder();
-		if(connection.prefix != null) url.append(connection.prefix);
-		if(connection.path != null) url.append(connection.path);
-		if(connection.dbname != null) url.append(connection.dbname);
+		if(connection.protocol != null) url.append(connection.protocol).append("//");
+		if(connection.host != null) url.append(connection.host).append(":");
+		if(connection.port != null) url.append(connection.port).append("/");
+		if(connection.database != null) url.append(connection.database);
 		if(connection.properties != null) url.append(propertiesToString());
 		return url;
 	}
@@ -41,8 +42,9 @@ public class PTConnection {
 
 	public String urlHost() {
 		StringBuilder url = new StringBuilder();
-		if(connection.prefix != null) url.append(connection.prefix);
-		if(connection.path != null) url.append(connection.path);
+		if(connection.protocol != null) url.append(connection.protocol).append("//");
+		if(connection.host != null) url.append(connection.host).append(":");
+		if(connection.port != null) url.append(connection.port).append("/");
 		if(connection.properties != null) url.append(propertiesToString());
 		return url.toString();
 	}
@@ -96,8 +98,8 @@ public class PTConnection {
 	 * prefix
 	 *****************/
 
-	public String prefix() {
-		return  connection.prefix;
+	public String protocol() {
+		return  connection.protocol;
 	}
 
 	/*****************
@@ -109,11 +111,27 @@ public class PTConnection {
 	}
 
 	/*****************
+	 * host
+	 *****************/
+
+	public String host() {
+		return connection.host;
+	}
+
+	/*****************
+	 * port
+	 *****************/
+
+	public String port() {
+		return connection.port;
+	}
+
+	/*****************
 	 * name
 	 *****************/
 
-	public String dbname() {
-		return connection.dbname;
+	public String database() {
+		return connection.database;
 	}
 
 	/*****************
