@@ -224,6 +224,19 @@ public class ACTable {
 	}
 
 	/***********************
+	 * PrimaryKeyNeme
+	 ***********************/
+
+	public String primaryKeyName() {
+		for (ACColumn acColumn : columns) {
+			if (acColumn.isPrimaryKey()) {
+				return acColumn.name;
+			}
+		}
+		return "";
+	}
+
+	/***********************
 	 * Imports
 	 ***********************/
 
