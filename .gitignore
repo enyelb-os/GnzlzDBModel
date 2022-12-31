@@ -3,6 +3,7 @@
 *.iws
 *.iml
 *.ipr
+out/
 
 # Compiled class file
 *.class
