@@ -9,21 +9,25 @@ public class ACFileModel {
 
 	public static void createFile(ACDataBase dataBase) {
 		try {
-			for (ACTable table : dataBase.tables()) {
-				File file = new File(path(dataBase, table)+nameF(table)+".java");
-				if(!file.exists()) {
-					Files.createFile(file.toPath());
-					FileWriter fileWriter = new FileWriter(file.toString());
-					fileWriter.write(packages(dataBase,table));
-					fileWriter.write(line(2));
-					fileWriter.write(imports(dataBase,table));
-					fileWriter.write(line(1));
-					fileWriter.write(dbModelName(table));
-					fileWriter.write(line(2));
-					fileWriter.write(method(table));
-					fileWriter.write(line(2));
-					fileWriter.write(end(0));
-					fileWriter.close();
+			for (ACCatalog catalog: dataBase.catalogs) {
+				for (ACScheme scheme: catalog.schemes) {
+					for (ACTable table: scheme.tables) {
+						File file = new File(path(dataBase, table)+nameF(table)+".java");
+						if(!file.exists()) {
+							Files.createFile(file.toPath());
+							FileWriter fileWriter = new FileWriter(file.toString());
+							fileWriter.write(packages(dataBase,table));
+							fileWriter.write(line(2));
+							fileWriter.write(imports(dataBase,table));
+							fileWriter.write(line(1));
+							fileWriter.write(dbModelName(table));
+							fileWriter.write(line(2));
+							fileWriter.write(method(table));
+							fileWriter.write(line(2));
+							fileWriter.write(end(0));
+							fileWriter.close();
+						}
+					}
 				}
 			}
 
@@ -59,7 +63,7 @@ public class ACFileModel {
 	}
 
 	static String nameF(ACTable table) {
-		return prefix() + table.tableCamelCase();
+		return prefix() + table.nameCamelCase();
 	}
 
 	/********************************

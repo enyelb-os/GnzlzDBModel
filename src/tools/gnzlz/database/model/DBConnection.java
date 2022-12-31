@@ -6,7 +6,9 @@ import java.util.ArrayList;
 
 import tools.gnzlz.database.autocode.model.ACDataBase;
 import tools.gnzlz.database.properties.PTConnection;
+import tools.gnzlz.database.properties.PTModel;
 import tools.gnzlz.database.properties.PropertiesConnection;
+import tools.gnzlz.database.properties.PropertiesModel;
 import tools.gnzlz.database.query.migration.CreateDB;
 import tools.gnzlz.database.query.migration.CreateTable;
 
@@ -74,7 +76,7 @@ public class DBConnection{
 
 	private void createDB(){
 		openForce(properties.urlHost());
-		query(CreateDB.create().database(properties.dbname())).execute();
+		query(CreateDB.create().database(properties.database())).execute();
 		if(connection != null) {
 			openForce();
 			migrate(configuration.migration().migrations());
@@ -90,7 +92,7 @@ public class DBConnection{
 	private boolean dbIsFile(){
 		String file = "";
 		if(properties.path() != null) file = properties.path();
-		if(properties.dbname() != null) file = file + properties.dbname();
+		if(properties.database() != null) file = file + properties.database();
 		return new File(file).exists();
 	}
 	
@@ -170,19 +172,19 @@ public class DBConnection{
 	 **********************/
 
 	public synchronized void migrate(DBMigration migration){
-		migrate(migration,tables());
+		migrate(migration,tables(properties.database(), null));
 	}
 
 	synchronized void migrate(ArrayList<DBMigration> migrations){
 		if(migrations != null && !migrations.isEmpty()) {
 			ArrayList<DBMigration> newTables = new ArrayList<DBMigration>();
-			ArrayList<DBModel<?>> tables = tables();
+			ArrayList<DBModel<?>> tables = tables(properties.database(), null);
 			migrations.forEach(m -> {
 				if(migrate(m, tables))
 					newTables.add(m);
 			});
-
-			ACDataBase.autocodeMigrations(this,newTables);
+			//repair
+			//ACDataBase.autocodeMigrations(this,newTables);
 		}
 	}
 
@@ -212,20 +214,72 @@ public class DBConnection{
 
 		return false;
 	}
-	
 	/**********************
-	 * table
+	 * debug
 	 **********************/
-	
-	private boolean debug = true;
-	
-	public synchronized ArrayList<DBModel<?>> tables(){
+
+	public static boolean debug = true;
+
+	/**********************
+	 * catalog
+	 **********************/
+
+	public synchronized ArrayList<DBModel<?>> catalogs(){
 		ArrayList<DBModel<?>> dbModels = new ArrayList<DBModel<?>>();
 		try {
 			open();
             DatabaseMetaData metaData = connection.getMetaData();
-            if(debug) System.out.println("searching the tables in the database: " + properties.dbname());
-			ResultSet r = metaData.getTables(connection.getCatalog(), null, "%", new String[]{"TABLE"});
+            if(debug) System.out.println("searching catalogs : " + properties.database());
+			ResultSet r = metaData.getCatalogs();
+			while (r.next()) {
+				DBModel<?> dbModel = DBModel.create(DBModel.class);
+				dbModel.initColumns(r);
+				dbModels.add(dbModel);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return dbModels;
+	}
+
+	/**********************
+	 * schemes
+	 **********************/
+
+	public synchronized ArrayList<DBModel<?>> schemes(String catalog){
+		ArrayList<DBModel<?>> dbModels = new ArrayList<DBModel<?>>();
+		try {
+			open();
+			DatabaseMetaData metaData = connection.getMetaData();
+			if(debug) System.out.println("searching scheme in the catalog : " + catalog);
+			ResultSet r = metaData.getSchemas(catalog, null);
+			while (r.next()) {
+				DBModel<?> dbModel = DBModel.create(DBModel.class);
+				dbModel.initColumns(r);
+				dbModels.add(dbModel);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		if(dbModels.isEmpty()){
+			dbModels.add(DBModel.create(DBModel.class).set("TABLE_SCHEM",""));
+		}
+
+		return dbModels;
+	}
+
+	/**********************
+	 * table
+	 **********************/
+
+	public synchronized ArrayList<DBModel<?>> tables(String catalog, String scheme){
+		ArrayList<DBModel<?>> dbModels = new ArrayList<DBModel<?>>();
+		try {
+			open();
+			DatabaseMetaData metaData = connection.getMetaData();
+			if(debug) System.out.println("searching the tables in the database: " + catalog);
+			ResultSet r = metaData.getTables(catalog, scheme, "%", new String[]{"TABLE"});
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
 				dbModel.initColumns(r);
@@ -241,13 +295,13 @@ public class DBConnection{
 	 * columns
 	 **********************/
 	
-	public synchronized ArrayList<DBModel<?>> columns(String table){
+	public synchronized ArrayList<DBModel<?>> columns(String catalog, String scheme, String table){
 		ArrayList<DBModel<?>> dbModels = new ArrayList<DBModel<?>>();
 		try {
 			open();
-			if(debug) System.out.println("database: " + connection.getCatalog() + " | searching the columns in the tabla: " + table);
+			if(debug) System.out.println("database: " + catalog + " | searching the columns in the tabla: " + table);
             DatabaseMetaData metaData = connection.getMetaData();
-			ResultSet r = metaData.getColumns(connection.getCatalog(), null, table, null);
+			ResultSet r = metaData.getColumns(catalog, scheme, table, null);
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
 				dbModel.initColumns(r);
@@ -263,13 +317,13 @@ public class DBConnection{
 	 * primaryKeys
 	 **********************/
 	
-	public synchronized ArrayList<DBModel<?>> primaryKeys(String table){
+	public synchronized ArrayList<DBModel<?>> primaryKeys(String catalog, String scheme, String table){
 		ArrayList<DBModel<?>> dbModels = new ArrayList<DBModel<?>>();
 		try {
 			open();
             DatabaseMetaData metaData = connection.getMetaData();
-            if(debug) System.out.println("database: " + connection.getCatalog() + " | searching the primary key in the tabla: " + table);
-			ResultSet r = metaData.getPrimaryKeys(connection.getCatalog(), null, table);
+            if(debug) System.out.println("database: " + catalog + " | searching the primary key in the tabla: " + table);
+			ResultSet r = metaData.getPrimaryKeys(catalog, scheme, table);
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
 				dbModel.initColumns(r);
@@ -285,13 +339,13 @@ public class DBConnection{
 	 * exportedKeys
 	 **********************/
 	
-	public synchronized ArrayList<DBModel<?>> exportedKeys(String table){
+	public synchronized ArrayList<DBModel<?>> exportedKeys(String catalog, String scheme, String table){
 		ArrayList<DBModel<?>> dbModels = new ArrayList<DBModel<?>>();
 		try {
 			open();
             DatabaseMetaData metaData = connection.getMetaData();
-            if(debug) System.out.println("database: " + connection.getCatalog() + " | searching the foreign keys in the tabla: " + table);
-			ResultSet r = metaData.getExportedKeys(connection.getCatalog(), null, table);
+            if(debug) System.out.println("database: " + catalog + " | searching the foreign keys in the tabla: " + table);
+			ResultSet r = metaData.getExportedKeys(catalog, scheme, table);
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
 				dbModel.initColumns(r);
@@ -306,14 +360,14 @@ public class DBConnection{
 	/**********************
 	 * importedKeys
 	 **********************/
-	
-	public synchronized ArrayList<DBModel<?>> importedKeys(String table){
+
+	public synchronized ArrayList<DBModel<?>> importedKeys(String catalog, String scheme, String table){
 		ArrayList<DBModel<?>> dbModels = new ArrayList<DBModel<?>>();
 		try {
 			open();
-			if(debug) System.out.println("database: " + connection.getCatalog() + " | searching the primary keys of other tables, for the table: " + table);
+			if(debug) System.out.println("database: " + catalog + " | searching the primary keys of other tables, for the table: " + table);
             DatabaseMetaData metaData = connection.getMetaData();
-			ResultSet r = metaData.getImportedKeys(connection.getCatalog(), null, table);
+			ResultSet r = metaData.getImportedKeys(catalog, scheme, table);
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
 				dbModel.initColumns(r);
@@ -322,34 +376,6 @@ public class DBConnection{
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return dbModels;
-	}
-	
-	/**********************
-	 * ManyToMany
-	 **********************/
-	
-	public synchronized ArrayList<DBModel<?>> manyToManyKeys(String table){
-		ArrayList<DBModel<?>> dbModels = new ArrayList<DBModel<?>>();
-		boolean nDebug = debug;
-		debug = false;
-		exportedKeys(table).stream().forEach((db)->{
-			importedKeys(db.get("FKTABLE_NAME").stringValue()).stream().forEach((dbf)->{
-				if(!dbf.get("PKTABLE_NAME").stringValue().equals(table)){
-					if(nDebug) System.out.println("database: " + properties.dbname() + " | searching relationships many to many (" + table +", "+db.get("FKTABLE_NAME").object+", "+dbf.get("PKTABLE_NAME").object+")");
-					DBModel dbModel = DBModel.create(DBModel.class);
-					dbModel.set("PKCOLUMN_NAME", db.get("PKCOLUMN_NAME").object);
-					dbModel.set("PKTABLE_NAME", db.get("PKTABLE_NAME").object);
-					dbModel.set("ICOLUMN_NAME1", db.get("FKCOLUMN_NAME").object);
-					dbModel.set("ITABLE_NAME", db.get("FKTABLE_NAME").object);
-					dbModel.set("ICOLUMN_NAME2", dbf.get("FKCOLUMN_NAME").object);
-					dbModel.set("FKTABLE_NAME", dbf.get("PKTABLE_NAME").object);
-					dbModel.set("FKCOLUMN_NAME", dbf.get("PKCOLUMN_NAME").object);
-					dbModels.add(dbModel);
-				}
-			});
-		});
-		debug = nDebug;
 		return dbModels;
 	}
 	
@@ -417,4 +443,11 @@ public class DBConnection{
 		return configuration;
 	}
 
+	/*******************
+	 * ConnectionProperties
+	 *******************/
+
+	public PTConnection properties() {
+		return properties;
+	}
 }

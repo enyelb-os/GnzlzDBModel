@@ -12,9 +12,12 @@ public class PropertiesConnection {
 	protected Dialect dialect = Dialect.MySQL;
 	protected SQLFile script;
 	protected Driver driver;
-	protected String prefix;
+	protected String protocol;
+	protected String port;
+	protected String database;
+	protected String host;
 	protected String path;
-	protected String dbname;
+
 	protected String user;
 	protected String password;
 	protected Hashtable<String,String> properties;
@@ -65,13 +68,13 @@ public class PropertiesConnection {
 	 * prefix
 	 *****************/
 
-	public PropertiesConnection prefix(String prefix) {
-		this.prefix = prefix;
+	public PropertiesConnection protocol(String protocol) {
+		this.protocol = protocol;
 		return this;
 	}
 
 	/*****************
-	 * path
+	 * host
 	 *****************/
 
 	public PropertiesConnection path(String path) {
@@ -80,11 +83,29 @@ public class PropertiesConnection {
 	}
 
 	/*****************
+	 * host
+	 *****************/
+
+	public PropertiesConnection host(String host) {
+		this.host = host;
+		return this;
+	}
+
+	/*****************
 	 * name
 	 *****************/
 
-	public PropertiesConnection dbname(String name) {
-		this.dbname = name;
+	public PropertiesConnection name(String database) {
+		this.database = database ;
+		return this;
+	}
+
+	/*****************
+	 * port
+	 *****************/
+
+	public PropertiesConnection port(int port) {
+		this.port = "" + port;
 		return this;
 	}
 

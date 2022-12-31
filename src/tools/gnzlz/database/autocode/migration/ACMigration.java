@@ -1,9 +1,5 @@
 package tools.gnzlz.database.autocode.migration;
 
-import tools.gnzlz.database.autocode.model.ACFileAttributeModel;
-import tools.gnzlz.database.autocode.model.ACFileBaseModel;
-import tools.gnzlz.database.autocode.model.ACFileCustomModel;
-import tools.gnzlz.database.autocode.model.ACFileModel;
 import tools.gnzlz.database.model.DBConfiguration;
 import tools.gnzlz.database.model.DBConnection;
 import tools.gnzlz.database.model.DBMigration;
@@ -30,27 +26,27 @@ public class ACMigration {
 	}
 
 	public static void autocode(DBConnection connection) {
-		new ACMigration(connection,connection.tables());
+		//new ACMigration(connection,connection.tables());
 	}
 
 	public static void autocode(DBConnection connection, String table) {
 		ArrayList<DBModel<?>> dbtables = new ArrayList<DBModel<?>>();
-		connection.tables().stream().forEach(e ->{
+		/*connection.tables().stream().forEach(e ->{
 			if (e.get("TABLE_NAME").stringValue().equalsIgnoreCase(table))
 				dbtables.add(e);
-		});
+		});*/
 
 		new ACMigration(connection,dbtables);
 	}
 
 	public static void autocode(DBConnection connection, ArrayList<String> tables) {
 		ArrayList<DBModel<?>> dbtables = new ArrayList<DBModel<?>>();
-		connection.tables().stream().forEach(e ->{
+		/*connection.tables().stream().forEach(e ->{
 			tables.stream().forEach(table->{
 				if (e.get("TABLE_NAME").stringValue().equalsIgnoreCase(table))
 					dbtables.add(e);
 			});
-		});
+		});*/
 
 		new ACMigration(connection,dbtables);
 	}
@@ -64,9 +60,9 @@ public class ACMigration {
 				if(!isMigrationExists(e.get("TABLE_NAME").stringValue())){
 					String packageName = e.get("PACKAGE_NAME") == null ? "" : "." + e.get("PACKAGE_NAME").stringValue();
 					ACTable table = table(e.get("TABLE_NAME").stringValue(), packageName);
-					table.addColumns(connection.columns(table.table()));
-					table.addPrimaryKeys(connection.primaryKeys(table.table()));
-					table.addHasOne(connection.importedKeys(table.table()));
+					//table.addColumns(connection.columns(table.table()));
+					//table.addPrimaryKeys(connection.primaryKeys(table.table()));
+					//table.addHasOne(connection.importedKeys(table.table()));
 				}
 			});
 

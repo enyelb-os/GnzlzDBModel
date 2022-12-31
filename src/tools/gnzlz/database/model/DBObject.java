@@ -185,6 +185,8 @@ public class DBObject {
 			return (Boolean) object;
 		if(object instanceof Number)
 			return ((Number)object).intValue() == 1;
+		if(object instanceof String)
+			return ((String)object).equals("1");
 		return false;
 	}
 	

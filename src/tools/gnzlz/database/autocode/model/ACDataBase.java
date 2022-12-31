@@ -3,122 +3,67 @@ package tools.gnzlz.database.autocode.model;
 import java.util.ArrayList;
 
 import tools.gnzlz.database.model.DBConfiguration;
-import tools.gnzlz.database.model.DBConnection;
-import tools.gnzlz.database.model.DBMigration;
 import tools.gnzlz.database.model.DBModel;
 
 public class ACDataBase {
 
-	DBConfiguration configuration;
+	/****************************
+	 * vars
+	 ****************************/
 
-	ArrayList<ACTable> tables;
+	public final DBConfiguration configuration;
+	public final ArrayList<ACCatalog> catalogs;
 	
-	public static <T extends DBConfiguration> void autocode(Class<T> c) {
-		autocode(DBConfiguration.configuration(c).connection());
+	public static <T extends DBConfiguration> ACDataBase dataBase(Class<T> c) {
+		return new ACDataBase(DBConfiguration.configuration(c),"");
 	}
 
-	public static <T extends DBConfiguration> void autocode(Class<T> c, String table) {
-		autocode(DBConfiguration.configuration(c).connection(),table);
+	public static <T extends DBConfiguration> ACDataBase dataBase(Class<T> c, String catalog) {
+		return new ACDataBase(DBConfiguration.configuration(c), catalog);
 	}
 
-	public static <T extends DBConfiguration> void autocode(Class<T> c, ArrayList<String> tables) {
-		autocode(DBConfiguration.configuration(c).connection(),tables);
-	}
+	/****************************
+	 * constructor
+	 ****************************/
 
-	public static void autocode(DBConnection connection) {
-		new ACDataBase(connection,connection.tables());
-	}
+	<T extends DBConfiguration> ACDataBase(DBConfiguration configuration, String catalogName) {
+		this.configuration = configuration;
+		this.catalogs = new ArrayList<ACCatalog>();
 
-	public static void autocode(DBConnection connection, String table) {
-		ArrayList<DBModel<?>> dbtables = new ArrayList<DBModel<?>>();
-		connection.tables().stream().forEach(e ->{
-			if (e.get("TABLE_NAME").stringValue().equalsIgnoreCase(table))
-				dbtables.add(e);
-		});
-
-		new ACDataBase(connection,dbtables);
-	}
-
-	public static void autocode(DBConnection connection, ArrayList<String> tables) {
-		ArrayList<DBModel<?>> dbtables = new ArrayList<DBModel<?>>();
-		connection.tables().stream().forEach(e ->{
-			tables.stream().forEach(table->{
-				if (e.get("TABLE_NAME").stringValue().equalsIgnoreCase(table))
-					dbtables.add(e);
-			});
-		});
-
-		new ACDataBase(connection,dbtables);
-	}
-
-	public static void autocodeMigrations(DBConnection connection, ArrayList<DBMigration> tables) {
-		ArrayList<DBModel<?>> dbtables = new ArrayList<DBModel<?>>();
-		connection.tables().stream().forEach(e ->{
-			tables.stream().forEach(table->{
-				if (e.get("TABLE_NAME").stringValue().equalsIgnoreCase(table.tableName())){
-					DBModel<?> model = DBModel.create(DBModel.class);
-					model.set("TABLE_NAME", table.tableName());
-					model.set("PACKAGE_NAME", table.packageName());
-					dbtables.add(model);
+		ArrayList<DBModel<?>> catalosModel = this.configuration.connection().catalogs();
+		for (DBModel cat: catalosModel) {
+			ACCatalog catalog = new ACCatalog(cat, this);
+			if (!catalogName.isEmpty() && !catalogName.equals(catalog.name))
+				continue;
+			ArrayList<DBModel<?>> schemesModel = this.configuration.connection().schemes(catalog.name);
+			for (DBModel schemeModel: schemesModel) {
+				ACScheme scheme = new ACScheme(schemeModel, catalog);
+				ArrayList<DBModel<?>> tablesModel = this.configuration.connection().tables(catalog.name, scheme.name);
+				for (DBModel tableModel : tablesModel) {
+					ACTable table = new ACTable(tableModel, scheme);
+					table.addColumns(
+						this.configuration.connection().columns(catalog.name, scheme.name, table.name),
+						this.configuration.connection().primaryKeys(catalog.name, scheme.name, table.name)
+					);
+					scheme.tables.add(table);
 				}
-			});
-		});
-
-		new ACDataBase(connection,dbtables);
-	}
-	
-	<T extends DBConfiguration> ACDataBase(DBConnection connection, ArrayList<DBModel<?>> tables) {
-		if(tables != null && tables.size() > 0) {
-			configuration = connection.configuration();
-			tables.stream().forEach(e -> {
-				String packageName = e.get("PACKAGE_NAME") == null ? "" : "." + e.get("PACKAGE_NAME").stringValue();
-				ACTable table = table(e.get("TABLE_NAME").stringValue(), packageName);
-				table.addColumns(connection.columns(table.table()));
-				table.addPrimaryKeys(connection.primaryKeys(table.table()));
-				table.addHasOne(connection.importedKeys(table.table()));
-				table.addHasMany(connection.exportedKeys(table.table()));
-				table.addBelongsToMany(connection.manyToManyKeys(table.table()));
-			});
-
-			ACFileBaseModel.createFile(this);
-			ACFileCustomModel.createFile(this);
-			ACFileModel.createFile(this);
-			ACFileAttributeModel.createFile(this);
+				catalog.schemes.add(scheme);
+			}
+			catalogs.add(catalog);
 		}
-	}
-	
-	ACTable table(String table, String packageName) {
-		for (ACTable acTable : tables()) {
-			if(acTable.table().equals(table))
-				return acTable;
-		}
-		ACTable acTable = new ACTable(table,packageName, this);
-		tables().add(acTable);
-		return acTable;
-	}
 
-	String packageName(String table) {
-		for (ACTable acTable : tables()) {
-			if(acTable.table().equals(table))
-				return acTable.packegeName();
+		// Relations
+		for (ACCatalog catalog: catalogs) {
+			for (ACScheme scheme: catalog.schemes) {
+				for (ACTable table: scheme.tables) {
+					table.addRelation(this.configuration.connection().importedKeys(catalog.name, scheme.name, table.name));
+				}
+			}
 		}
-		return "";
-	}
 
-	ACTable table(String table) {
-		for (ACTable acTable : tables()) {
-			if(acTable.table().equals(table))
-				return acTable;
-		}
-		return null;
-	}
-	
-	/***********************
-	 * Tables
-	 ***********************/
-	
-	ArrayList<ACTable> tables() {
-		if(tables == null) tables = new ArrayList<ACTable>(); 
-		return tables;
+		//ACFileBaseModel.createFile(this);
+		//ACFileCustomModel.createFile(this);
+		//ACFileModel.createFile(this);
+		//ACFileAttributeModel.createFile(this);
 	}
 }
