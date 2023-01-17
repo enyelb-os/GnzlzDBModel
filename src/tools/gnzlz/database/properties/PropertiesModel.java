@@ -3,19 +3,8 @@ package tools.gnzlz.database.properties;
 import java.text.SimpleDateFormat;
 
 public class PropertiesModel {
-
-	protected String modelPackage;
 	protected boolean refresh;
 	protected SimpleDateFormat simpleDateFormat;
-
-	/*****************
-	 * modelPackage
-	 *****************/
-
-	public PropertiesModel modelPackage(String modelPackage) {
-		this.modelPackage = modelPackage;
-		return this;
-	}
 
 	/*****************
 	 * refresh

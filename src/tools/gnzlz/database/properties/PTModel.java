@@ -11,14 +11,6 @@ public class PTModel {
 	}
 
 	/*****************
-	 * modelPackage
-	 *****************/
-
-	public String modelPackage() {
-		return model.modelPackage;
-	}
-
-	/*****************
 	 * refresh
 	 *****************/
 

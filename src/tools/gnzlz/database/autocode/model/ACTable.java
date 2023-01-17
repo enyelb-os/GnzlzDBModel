@@ -1,7 +1,6 @@
 package tools.gnzlz.database.autocode.model;
 
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicReference;
 
 import tools.gnzlz.database.autocode.ACFormat;
 import tools.gnzlz.database.model.DBModel;
@@ -240,7 +239,7 @@ public class ACTable {
 	 * Imports
 	 ***********************/
 
-	public ArrayList<ACRelation> hasOneNameImports() {
+	public ArrayList<ACRelation> hasOneImports() {
 		ArrayList<ACRelation> relations = new ArrayList<>();
 		for (ACColumn column : this.columns) {
 			for (ACRelation relation : column.hasOne()) {
@@ -263,4 +262,110 @@ public class ACTable {
 		return true;
 	}
 
+	/***********************
+	 * Imports
+	 ***********************/
+
+	public ArrayList<ACRelation> hasManyImports() {
+		ArrayList<ACRelation> relations = new ArrayList<>();
+		for (ACColumn column : this.columns) {
+			for (ACRelation relation : column.hasMany()) {
+				if (hasManyExists(relations, relation))
+					relations.add(relation);
+			}
+		}
+		return relations;
+	}
+
+	/***********************
+	 * Imports
+	 ***********************/
+
+	public boolean hasManyExists(ArrayList<ACRelation> relations, ACRelation relation) {
+		for (ACRelation relation2 : relations) {
+			if (relation.fkColumn.table.name.equals(relation2.fkColumn.table.name))
+				return false;
+		}
+		return true;
+	}
+
+	/***********************
+	 * Imports
+	 ***********************/
+
+	public ArrayList<ACColumn> allColumnsImports() {
+		ArrayList<ACColumn> columns = new ArrayList<>();
+		for (ACColumn column : this.columns) {
+			for (ACRelation relation : column.hasOne()) {
+				if (!hasColumnExists(columns, relation.pkColumn)) {
+					columns.add(relation.pkColumn);
+				}
+				if (!hasColumnExists(columns, relation.fkColumn)) {
+					columns.add(relation.fkColumn);
+				}
+			}
+			for (ACRelation relation : column.hasMany()) {
+				if (!hasColumnExists(columns, relation.fkColumn)) {
+					columns.add(relation.fkColumn);
+				}
+				if (!hasColumnExists(columns, relation.pkColumn)) {
+					columns.add(relation.pkColumn);
+				}
+			}
+			for (ACManyToMany manyToMany : column.belongsToManys()) {
+				if (!hasColumnExists(columns, manyToMany.relation1.pkColumn)) {
+					columns.add(manyToMany.relation1.pkColumn);
+				}
+				if (!hasColumnExists(columns, manyToMany.relation1.fkColumn)) {
+					columns.add(manyToMany.relation1.fkColumn);
+				}
+				if (!hasColumnExists(columns, manyToMany.relation2.pkColumn)) {
+					columns.add(manyToMany.relation2.pkColumn);
+				}
+				if (!hasColumnExists(columns, manyToMany.relation2.fkColumn)) {
+					columns.add(manyToMany.relation2.fkColumn);
+				}
+			}
+
+			if (!hasColumnExists(columns, column)) {
+				columns.add(column);
+			}
+		}
+		return columns;
+	}
+
+	/***********************
+	 * Imports
+	 ***********************/
+
+	public boolean hasColumnExists(ArrayList<ACColumn> columns, ACColumn column) {
+		for (ACColumn column2 : columns) {
+			if (column2.table.name.equals(column.table.name))
+				return true;
+		}
+		return false;
+	}
+
+	/***********************
+	 * ExtraImports
+	 ***********************/
+
+	public ArrayList<String> extraImports() {
+		ArrayList<String> imports = new ArrayList<String>();
+
+		for (ACColumn column : this.columns) {
+			String newImport = ACFormat.imports(column.type);
+			boolean add = true;
+			for (String imported : imports) {
+				if(imported.equalsIgnoreCase(newImport)){
+					add = false;
+					break;
+				}
+			}
+			if(add) {
+				imports.add(newImport);
+			}
+		}
+		return imports;
+	}
 }
