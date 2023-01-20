@@ -12,6 +12,9 @@ public class ACFormat {
 
 	public static String beginValidNumber(String s) {
 		boolean digit = false;
+		if(s.equals("package") || s.equals("query")){
+			return s + "1";
+		}
 		for (int i = 0 ; i < s.length(); i++){
 			if(Character.isDigit(s.charAt(i))){
 				digit = true;
@@ -32,7 +35,11 @@ public class ACFormat {
 		String temp[] = s.split("_");
 		String newString = "";
 		for (String string : temp) {
-			newString = newString + Character.toUpperCase(string.charAt(0)) + string.substring(1, string.length());
+			newString = newString + Character.toUpperCase(string.charAt(0)) + string.substring(1);
+		}
+
+		if(s.substring(s.length()-1).equalsIgnoreCase("_")){
+			newString = newString + "_";
 		}
 		
 		return newString;
@@ -43,8 +50,15 @@ public class ACFormat {
 		String temp[] = s.split("_");
 		String newString = "";
 		for (int i = 0; i < temp.length; i++) {
-			if(i==0) newString = newString + Character.toLowerCase(temp[i].charAt(0)) + temp[i].substring(1, temp[i].length());
-			else newString = newString + Character.toUpperCase(temp[i].charAt(0)) + temp[i].substring(1, temp[i].length());
+			if(i==0){
+				newString = newString + Character.toLowerCase(temp[i].charAt(0)) + temp[i].substring(1);
+			} else {
+				newString = newString + Character.toUpperCase(temp[i].charAt(0)) + temp[i].substring(1);
+			}
+		}
+
+		if(s.substring(s.length()-1).equalsIgnoreCase("_")){
+			newString = newString + "_";
 		}
 		
 		return newString;
