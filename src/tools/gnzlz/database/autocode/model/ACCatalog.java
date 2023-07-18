@@ -31,8 +31,16 @@ public class ACCatalog {
 	 ****************************/
 
 	ACCatalog(DBModel catalog, ACDataBase dataBase) {
+		this(catalog.get(TABLE_CAT).stringValue(), dataBase);
+	}
+
+	/****************************
+	 * constructor
+	 ****************************/
+
+	ACCatalog(String catalog, ACDataBase dataBase) {
 		this.dataBase = dataBase;
-		this.name = catalog.get(TABLE_CAT).stringValue();
+		this.name = catalog;
 		this.schemes = new ArrayList();
 	}
 

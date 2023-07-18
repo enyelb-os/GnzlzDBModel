@@ -1,16 +1,13 @@
 package tools.gnzlz.database.model;
 
+import tools.gnzlz.database.properties.PTConnection;
+import tools.gnzlz.database.properties.PropertiesConnection;
+import tools.gnzlz.database.query.migration.CreateDB;
+import tools.gnzlz.database.query.migration.CreateTable;
+
 import java.io.File;
 import java.sql.*;
 import java.util.ArrayList;
-
-import tools.gnzlz.database.autocode.model.ACDataBase;
-import tools.gnzlz.database.properties.PTConnection;
-import tools.gnzlz.database.properties.PTModel;
-import tools.gnzlz.database.properties.PropertiesConnection;
-import tools.gnzlz.database.properties.PropertiesModel;
-import tools.gnzlz.database.query.migration.CreateDB;
-import tools.gnzlz.database.query.migration.CreateTable;
 
 public class DBConnection{
 
@@ -43,7 +40,9 @@ public class DBConnection{
 		try {
 			boolean loadScript = !dbIsFile();
 			open();
-			if (connection !=null) connection.getMetaData(); // create database if file
+			if (connection !=null) {
+				connection.getMetaData(); // create database if file
+			}
 			boolean dbIsFile = dbIsFile();
 			if(dbIsFile && loadScript){
 				migrate(configuration.migration().migrations());
@@ -76,11 +75,13 @@ public class DBConnection{
 
 	private void createDB(){
 		openForce(properties.urlHost());
-		query(CreateDB.create().database(properties.database())).execute();
 		if(connection != null) {
+			query(CreateDB.create().database(properties.database())).execute();
 			openForce();
-			migrate(configuration.migration().migrations());
-			executeScriptInitial();
+			if(connection != null) {
+				migrate(configuration.migration().migrations());
+				executeScriptInitial();
+			}
 		}
 		close();
 	}

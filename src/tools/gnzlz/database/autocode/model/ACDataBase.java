@@ -1,9 +1,9 @@
 package tools.gnzlz.database.autocode.model;
 
-import java.util.ArrayList;
-
 import tools.gnzlz.database.model.DBConfiguration;
 import tools.gnzlz.database.model.DBModel;
+
+import java.util.ArrayList;
 
 public class ACDataBase {
 
@@ -49,6 +49,22 @@ public class ACDataBase {
 				}
 				catalog.schemes.add(scheme);
 			}
+			catalogs.add(catalog);
+		}
+
+		if(catalogs.isEmpty()){
+			ACCatalog catalog = new ACCatalog("config", this);
+			ACScheme scheme = new ACScheme("", catalog);
+			ArrayList<DBModel<?>> tablesModel = this.configuration.connection().tables(catalog.name, scheme.name);
+			for (DBModel tableModel : tablesModel) {
+				ACTable table = new ACTable(tableModel, scheme);
+				table.addColumns(
+					this.configuration.connection().columns(catalog.name, scheme.name, table.name),
+					this.configuration.connection().primaryKeys(catalog.name, scheme.name, table.name)
+				);
+				scheme.tables.add(table);
+			}
+			catalog.schemes.add(scheme);
 			catalogs.add(catalog);
 		}
 
