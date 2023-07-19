@@ -30,9 +30,17 @@ public class ACScheme {
 	 ****************************/
 
 	ACScheme(DBModel scheme, ACCatalog catalog) {
+		this(scheme.get(TABLE_SCHEM).stringValue(), catalog);
+	}
+
+	/****************************
+	 * constructor
+	 ****************************/
+
+	ACScheme(String scheme, ACCatalog catalog) {
 		this.catalog = catalog;
 
-		this.name = scheme.get(TABLE_SCHEM).stringValue();
+		this.name = scheme;
 		this.tables = new ArrayList<ACTable>();
 	}
 

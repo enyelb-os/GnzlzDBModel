@@ -31,8 +31,10 @@ public class PTConnection {
 		if(connection.protocol != null) url.append(connection.protocol).append("//");
 		if(connection.host != null) url.append(connection.host).append(":");
 		if(connection.port != null) url.append(connection.port).append("/");
+		if(connection.path != null) url.append(connection.path);
 		if(connection.database != null) url.append(connection.database);
 		if(connection.properties != null) url.append(propertiesToString());
+
 		return url;
 	}
 
@@ -115,7 +117,7 @@ public class PTConnection {
 	 *****************/
 
 	public String host() {
-		return connection.host;
+		return connection.host == null ? "" : connection.host;
 	}
 
 	/*****************
@@ -123,7 +125,7 @@ public class PTConnection {
 	 *****************/
 
 	public String port() {
-		return connection.port;
+		return connection.port == null ? "" : connection.port;
 	}
 
 	/*****************
@@ -134,12 +136,19 @@ public class PTConnection {
 		return connection.database;
 	}
 
+	public String name() {
+		if(connection.database.contains(".")){
+			return connection.database.substring(0,connection.database.indexOf("."));
+		}
+		return connection.database;
+	}
+
 	/*****************
 	 * user
 	 *****************/
 
 	public String user() {
-		return connection.user;
+		return connection.user == null ? "" : connection.user;
 	}
 
 	/*****************
@@ -147,7 +156,7 @@ public class PTConnection {
 	 *****************/
 
 	public String password() {
-		return connection.password;
+		return connection.password == null ? "" : connection.password;
 	}
 
 	/*****************
