@@ -1,12 +1,12 @@
 package tools.gnzlz.database.form;
 
-import tools.gnzlz.validation.Validation;
+//import tools.gnzlz.validation.Validation;
 
 import java.util.ArrayList;
 
 public class DBFormColumn {
 
-    protected final String name;
+   /* protected final String name;
     protected ArrayList<Validation> validations;
     protected String label;
 
@@ -43,5 +43,5 @@ public class DBFormColumn {
 
     public String label() {
         return label;
-    }
+    }*/
 }
