@@ -7,4 +7,5 @@ module tools.gnzlz.database {
     exports tools.gnzlz.database.model.interfaces;
     exports tools.gnzlz.database.query.model;
     exports tools.gnzlz.database.properties;
+    exports tools.gnzlz.database.migration;
 }

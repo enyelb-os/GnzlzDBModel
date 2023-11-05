@@ -52,7 +52,7 @@ public class MyTable extends DBMigration {
 
 ### Example Generate Models DB or Migration
 ```*.java
-public static void main(String[] args) {
+public static void main1(String[] args) {
   // Method 1
   ACDataBase.autocode(ExampleMySQL.class);
   // Method 2
