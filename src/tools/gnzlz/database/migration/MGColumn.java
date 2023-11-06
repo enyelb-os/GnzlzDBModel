@@ -74,6 +74,14 @@ public class MGColumn {
         return autoincrement;
     }
 
+    /*****************
+     * unique
+     *****************/
+
+    public MGColumn unique() {
+        unique = true;
+        return this;
+    }
 
     /*****************
      * unique
