@@ -295,26 +295,4 @@ public class ACTable {
 		}
 		return true;
 	}
-
-	/**
-	 * extraImports
-	 */
-	public ArrayList<String> extraImports() {
-		ArrayList<String> imports = new ArrayList<String>();
-
-		for (ACColumn column : this.columns) {
-			String newImport = ACFormat.imports(column.type);
-			boolean add = true;
-			for (String imported : imports) {
-				if(imported.equalsIgnoreCase(newImport)){
-					add = false;
-					break;
-				}
-			}
-			if(add) {
-				imports.add(newImport);
-			}
-		}
-		return imports;
-	}
 }

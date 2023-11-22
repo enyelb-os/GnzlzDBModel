@@ -1,5 +1,6 @@
 package tools.gnzlz.database.model;
 
+import tools.gnzlz.database.autocode.definition.Definition;
 import tools.gnzlz.database.properties.PTConnection;
 import tools.gnzlz.database.properties.PropertiesConnection;
 import tools.gnzlz.database.query.migration.CreateDB;
@@ -11,8 +12,8 @@ import java.util.ArrayList;
 
 public class DBConnection{
 
-	private PTConnection properties;
-	private DBConfiguration configuration;
+	private final PTConnection properties;
+	private final DBConfiguration configuration;
 	private Connection connection;
 
 	/***********************
@@ -240,6 +241,9 @@ public class DBConnection{
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		if(dbModels.isEmpty()){
+			dbModels.add(DBModel.create(DBModel.class).set(Definition.TABLE_CAT,""));
+		}
 		return dbModels;
 	}
 
@@ -249,11 +253,12 @@ public class DBConnection{
 
 	public synchronized ArrayList<DBModel<?>> schemes(String catalog){
 		ArrayList<DBModel<?>> dbModels = new ArrayList<DBModel<?>>();
+		String catalogName = catalog.isEmpty() ? null : catalog;
 		try {
 			open();
 			DatabaseMetaData metaData = connection.getMetaData();
 			if(debug) System.out.println("searching scheme in the catalog : " + catalog);
-			ResultSet r = metaData.getSchemas(catalog, null);
+			ResultSet r = metaData.getSchemas(catalogName, null);
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
 				dbModel.initColumns(r);
@@ -264,7 +269,7 @@ public class DBConnection{
 		}
 
 		if(dbModels.isEmpty()){
-			dbModels.add(DBModel.create(DBModel.class).set("TABLE_SCHEM",""));
+			dbModels.add(DBModel.create(DBModel.class).set(Definition.TABLE_SCHEM,""));
 		}
 
 		return dbModels;
@@ -276,11 +281,13 @@ public class DBConnection{
 
 	public synchronized ArrayList<DBModel<?>> tables(String catalog, String scheme){
 		ArrayList<DBModel<?>> dbModels = new ArrayList<DBModel<?>>();
+		String catalogName = catalog.isEmpty() ? null : catalog;
+		String schemeName = scheme.isEmpty() ? null : scheme;
 		try {
 			open();
 			DatabaseMetaData metaData = connection.getMetaData();
 			if(debug) System.out.println("searching the tables in the database: " + catalog);
-			ResultSet r = metaData.getTables(catalog, scheme, "%", new String[]{"TABLE"});
+			ResultSet r = metaData.getTables(catalogName, schemeName, "%", new String[]{"TABLE"});
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
 				dbModel.initColumns(r);
