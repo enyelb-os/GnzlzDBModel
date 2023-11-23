@@ -28,13 +28,26 @@ public class PTConnection {
 
 	public StringBuilder urlDBRefresh() {
 		url = new StringBuilder();
-		if(connection.protocol != null) url.append(connection.protocol).append("//");
-		if(connection.host != null) url.append(connection.host).append(":");
-		if(connection.port != null) url.append(connection.port).append("/");
-		if(connection.path != null) url.append(connection.path);
-		if(connection.database != null) url.append(connection.database);
-		if(connection.properties != null) url.append(propertiesToString());
+		if (connection.protocol != null) {
+			url.append(connection.protocol).append("//");
+		}
+		if (connection.path != null) {
+			url.append(connection.path);
+		} else {
+			if (connection.host != null) {
+				url.append(connection.host).append(":");
+			}
+			if (connection.port != null) {
+				url.append(connection.port).append("/");
+			}
+			if (connection.database != null) {
+				url.append(connection.database);
+			}
+		}
 
+		if (connection.properties != null) {
+			url.append(propertiesToString());
+		}
 		return url;
 	}
 
@@ -44,10 +57,18 @@ public class PTConnection {
 
 	public String urlHost() {
 		StringBuilder url = new StringBuilder();
-		if(connection.protocol != null) url.append(connection.protocol).append("//");
-		if(connection.host != null) url.append(connection.host).append(":");
-		if(connection.port != null) url.append(connection.port).append("/");
-		if(connection.properties != null) url.append(propertiesToString());
+		if (connection.protocol != null) {
+			url.append(connection.protocol).append("//");
+		}
+		if (connection.host != null) {
+			url.append(connection.host).append(":");
+		}
+		if (connection.port != null) {
+			url.append(connection.port).append("/");
+		}
+		if (connection.properties != null) {
+			url.append(propertiesToString());
+		}
 		return url.toString();
 	}
 
@@ -81,7 +102,7 @@ public class PTConnection {
 	}
 
 	/*****************
-	 * drivar
+	 * driver
 	 *****************/
 
 	public Driver driver() {

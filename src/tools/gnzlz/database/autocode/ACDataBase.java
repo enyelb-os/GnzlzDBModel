@@ -31,6 +31,7 @@ public class ACDataBase {
 		for (DBModel<?> cat: catalogsModel) {
 			ACCatalog catalog = new ACCatalog(cat, this);
 			if (catalogName.isEmpty() || catalogName.equals(catalog.name)) {
+				System.out.println(catalog.name);
 				ArrayList<DBModel<?>> schemesModel = this.configuration.connection().schemes(catalog.name);
 				for (DBModel<?> schemeModel: schemesModel) {
 					ACScheme scheme = new ACScheme(schemeModel, catalog);

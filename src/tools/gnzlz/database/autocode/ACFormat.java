@@ -35,10 +35,12 @@ public class ACFormat {
 		String[] temp = s.split("_");
 		StringBuilder newString = new StringBuilder();
 		for (String string : temp) {
-			newString.append(Character.toUpperCase(string.charAt(0))).append(string.substring(1));
+			if (!string.isEmpty()) {
+				newString.append(Character.toUpperCase(string.charAt(0))).append(string.substring(1));
+			}
 		}
 
-		if(s.substring(s.length()-1).equalsIgnoreCase("_")){
+		if(!s.isEmpty() && s.substring(s.length()-1).equalsIgnoreCase("_")){
 			newString.append("_");
 		}
 		

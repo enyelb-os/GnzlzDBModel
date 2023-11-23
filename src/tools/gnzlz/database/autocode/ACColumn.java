@@ -53,7 +53,7 @@ ACColumn {
 	 * table
 	 */
 
-	protected final ACTable table;
+	public final ACTable table;
 
 	/**
 	 * ACColumn

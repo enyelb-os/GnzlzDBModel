@@ -45,7 +45,7 @@ public class ACTable {
 	/**
 	 * scheme
 	 */
-	final ACScheme scheme;
+	public final ACScheme scheme;
 
 	/**
 	 * ACTable

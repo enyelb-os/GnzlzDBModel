@@ -20,7 +20,7 @@ public class ACScheme {
 	/**
 	 * catalog
 	 */
-	protected final ACCatalog catalog;
+	public final ACCatalog catalog;
 
 	/**
 	 * ACScheme
