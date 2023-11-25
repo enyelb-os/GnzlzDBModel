@@ -9,64 +9,8 @@ import java.sql.Struct;
 import java.util.Date;
 
 public class ACFormat {
-
-	public static String beginValidNumber(String s) {
-		boolean digit = false;
-		if(s.equals("package") || s.equals("query")){
-			return s + "1";
-		}
-		for (int i = 0 ; i < s.length(); i++){
-			if(Character.isDigit(s.charAt(i))){
-				digit = true;
-				if(i == s.length()-1)
-					return "n"+s;
-			}else{
-				if(digit){
-					return s.substring(i) + s.substring(0,i);
-				}
-				break;
-			}
-		}
-		return s;
-	}
-
-	public static String camelCaseClass(String s) {
-		s = s.toLowerCase();
-		String[] temp = s.split("_");
-		StringBuilder newString = new StringBuilder();
-		for (String string : temp) {
-			if (!string.isEmpty()) {
-				newString.append(Character.toUpperCase(string.charAt(0))).append(string.substring(1));
-			}
-		}
-
-		if(!s.isEmpty() && s.substring(s.length()-1).equalsIgnoreCase("_")){
-			newString.append("_");
-		}
-		
-		return newString.toString();
-	}
 	
-	public static String camelCaseMethod(String s) {
-		s = s.toLowerCase();
-		String[] temp = s.split("_");
-		StringBuilder newString = new StringBuilder();
-		for (int i = 0; i < temp.length; i++) {
-			if(i==0){
-				newString.append(Character.toLowerCase(temp[i].charAt(0))).append(temp[i].substring(1));
-			} else {
-				newString.append(Character.toUpperCase(temp[i].charAt(0))).append(temp[i].substring(1));
-			}
-		}
-
-		if(s.substring(s.length()-1).equalsIgnoreCase("_")){
-			newString.append("_");
-		}
-		
-		return newString.toString();
-	}
-	
-	public static String typeData(String type) {
+	/*public static String typeData(String type) {
 		type = type.split(" ")[0];
 		if (type.equalsIgnoreCase("INTEGER") || type.equalsIgnoreCase("INT")) {
 			return "int";
@@ -102,9 +46,9 @@ public class ACFormat {
 			return "Struct";
 		}
 		return "String";
-	}
+	}*/
 	
-	public static String typeValue(String type){
+	/*public static String typeValue(String type){
 		type= type.split(" ")[0];
 		if(type.equalsIgnoreCase("INTEGER") || type.equalsIgnoreCase("INT")) {
 			return "intValue();";
@@ -140,7 +84,7 @@ public class ACFormat {
 			return "structValue();";
 		}
 		return "stringValue();";
-	}
+	}*/
 	
 	public static String imports(String type){
 		type = type.split(" ")[0];
