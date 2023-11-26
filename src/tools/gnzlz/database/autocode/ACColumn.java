@@ -17,7 +17,7 @@ ACColumn {
 	/**
 	 * type
 	 */
-	public final String type;
+	public final ACType type;
 
 	/**
 	 * length
@@ -65,7 +65,7 @@ ACColumn {
 		this.table = table;
 
 		this.name = model.get(Definition.COLUMN_NAME).stringValue();
-		this.type = model.get(Definition.TYPE_NAME).stringValue();
+		this.type = new ACType(model);
 		this.length = model.get(Definition.COLUMN_SIZE).stringValue();
 		this.def = model.get(Definition.COLUMN_DEF).stringValue();
 		this.nullable = model.get(Definition.IS_NULLABLE).stringValue().equalsIgnoreCase("YES");
@@ -83,6 +83,19 @@ ACColumn {
 	 */
 	public boolean isPrimaryKey() {
 		return primaryKey != null;
+	}
+
+	/**
+	 * defaultValue
+	 */
+	public String defaultValue() {
+
+		if(type.type.equalsIgnoreCase("DATETIME") || type.type.equalsIgnoreCase("DATE") ||
+				type.type.equalsIgnoreCase("TIMESTAMP")  || type.type.equalsIgnoreCase("VARCHAR") ||
+				type.type.equalsIgnoreCase("LONGVARCHAR") || type.type.equalsIgnoreCase("CLOB"))
+			return "'" + def + "'";
+
+		return def;
 	}
 
 	/****************************
@@ -107,7 +120,7 @@ ACColumn {
 	}
 
 	/**
-	 * hasOne
+	 * oneToOne
 	 */
 	public ArrayList<ACRelation> oneToOne() {
 		return relations.stream().filter(relation -> relation.fkColumn == this).collect(Collectors.toCollection(ArrayList::new));
