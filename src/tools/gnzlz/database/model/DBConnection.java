@@ -259,7 +259,7 @@ public class DBConnection{
 				dbModel.initColumns(r);
 				dbModels.add(dbModel);
 			}
-		} catch (SQLException e) {
+		} catch (SQLException | NullPointerException e) {
 			//e.printStackTrace();
 		}
 		if (dbModels.isEmpty()) {
