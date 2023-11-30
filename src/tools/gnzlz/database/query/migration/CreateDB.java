@@ -32,7 +32,7 @@ public class CreateDB extends Query<CreateDB> implements ICreateDB<CreateDB>{
 	@Override
 	public String query() {
 		StringBuilder builder = generateCreateDB();
-		System.out.println(builder);
+		//System.out.println(builder);
 		return builder.toString();
 	}
 }

@@ -141,7 +141,6 @@ public class ACTable {
 				}
 			}
 		}
-		System.out.println("entre");
 		return null;
 	}
 

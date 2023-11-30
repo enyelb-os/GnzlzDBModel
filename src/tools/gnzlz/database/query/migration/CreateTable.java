@@ -32,7 +32,7 @@ public class CreateTable extends Query<CreateTable> implements ICreateTable<Crea
 	@Override
 	public String query() {
 		StringBuilder builder = generateCreateTable();
-		System.out.println(builder);
+		//System.out.println(builder);
 		return builder.toString();
 	}
 }

@@ -5,6 +5,8 @@ import tools.gnzlz.database.properties.PTConnection;
 import tools.gnzlz.database.properties.PropertiesConnection;
 import tools.gnzlz.database.query.migration.CreateDB;
 import tools.gnzlz.database.query.migration.CreateTable;
+import tools.gnzlz.system.ansi.Color;
+import tools.gnzlz.system.io.SystemIO;
 
 import java.io.File;
 import java.sql.*;
@@ -67,7 +69,7 @@ public class DBConnection{
 			}
 			close();
 		} catch (SQLException e) {
-			System.out.println(e.getMessage());
+			//e.printStackTrace();
 		}
 	}
 
@@ -102,7 +104,7 @@ public class DBConnection{
         	if (properties.script() != null && properties.script().script() != null) {
 				for (String sql : properties.script().script()) {
 					if (!connection.prepareStatement(sql).execute()) {
-						System.out.println(sql);
+						//System.out.println(sql);
 					}
 				}
 			}
@@ -132,7 +134,7 @@ public class DBConnection{
 				}
 			}
 		} catch (SQLException e) {
-			System.out.println(e.getMessage());
+			//e.printStackTrace();
 		}
 		return this;
 	}
@@ -242,7 +244,17 @@ public class DBConnection{
 	/**
 	 * debug
 	 */
-	public static boolean debug = true;
+	public static boolean outMetaData = true;
+
+	/**
+	 * debug
+	 */
+	public static boolean outModel = true;
+
+	/**
+	 * debug
+	 */
+	public static boolean outMigration = true;
 
 	/**
 	 * catalogs
@@ -252,7 +264,7 @@ public class DBConnection{
 		try {
 			open();
             DatabaseMetaData metaData = connection.getMetaData();
-            if(debug) System.out.println("searching catalogs : " + properties.database());
+            SystemIO.OUT.println(outMetaData,"searching catalogs : " + Color.GREEN.print(properties.database()));
 			ResultSet r = metaData.getCatalogs();
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
@@ -278,7 +290,7 @@ public class DBConnection{
 		try {
 			open();
 			DatabaseMetaData metaData = connection.getMetaData();
-			if(debug) System.out.println("searching scheme in the catalog : " + catalog);
+			SystemIO.OUT.println(outMetaData,"searching scheme in the catalog : " + Color.GREEN.print(catalog));
 			ResultSet r = metaData.getSchemas(catalogName, null);
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
@@ -308,7 +320,7 @@ public class DBConnection{
 		try {
 			open();
 			DatabaseMetaData metaData = connection.getMetaData();
-			if(debug) System.out.println("searching the tables in the database: " + catalog);
+			SystemIO.OUT.println(outMetaData,"searching the tables in the database: " + Color.GREEN.print(catalog));
 			ResultSet r = metaData.getTables(catalogName, schemeName, "%", new String[]{"TABLE"});
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
@@ -331,7 +343,7 @@ public class DBConnection{
 		ArrayList<DBModel<?>> dbModels = new ArrayList<>();
 		try {
 			open();
-			if(debug) System.out.println("database: " + catalog + " | searching the columns in the tabla: " + table);
+			SystemIO.OUT.println(outMetaData,"database: " + Color.GREEN.print(catalog) + " | searching the columns in the tabla: " + Color.BLUE.print(table));
             DatabaseMetaData metaData = connection.getMetaData();
 			ResultSet r = metaData.getColumns(catalog, scheme, table, null);
 			while (r.next()) {
@@ -356,7 +368,7 @@ public class DBConnection{
 		try {
 			open();
             DatabaseMetaData metaData = connection.getMetaData();
-            if(debug) System.out.println("database: " + catalog + " | searching the primary key in the tabla: " + table);
+			SystemIO.OUT.println(outMetaData,"database: " + Color.GREEN.print(catalog) + " | searching the primary key in the tabla: " + Color.BLUE.print(table));
 			ResultSet r = metaData.getPrimaryKeys(catalog, scheme, table);
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
@@ -380,7 +392,7 @@ public class DBConnection{
 		try {
 			open();
             DatabaseMetaData metaData = connection.getMetaData();
-            if(debug) System.out.println("database: " + catalog + " | searching the foreign keys in the tabla: " + table);
+			SystemIO.OUT.println(outMetaData,"database: " + Color.GREEN.print(catalog) + " | searching the foreign keys in the tabla: " + Color.BLUE.print(table));
 			ResultSet r = metaData.getExportedKeys(catalog, scheme, table);
 			while (r.next()) {
 				DBModel<?> dbModel = DBModel.create(DBModel.class);
@@ -403,7 +415,7 @@ public class DBConnection{
 		ArrayList<DBModel<?>> dbModels = new ArrayList<>();
 		try {
 			open();
-			if(debug) System.out.println("database: " + catalog + " | searching the primary keys of other tables, for the table: " + table);
+			SystemIO.OUT.println(outMetaData,"database: " + Color.GREEN.print(catalog) + " | searching the primary keys of other tables, for the table: " + Color.BLUE.print(table));
             DatabaseMetaData metaData = connection.getMetaData();
 			ResultSet r = metaData.getImportedKeys(catalog, scheme, table);
 			while (r.next()) {
