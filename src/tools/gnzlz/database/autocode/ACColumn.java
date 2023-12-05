@@ -103,7 +103,7 @@ ACColumn {
 	 ****************************/
 	
 	void addRelation(ACRelation relation) {
-		if(relation(relation) == null) {
+		if(relation(relation) == null && relation != null) {
 			relations.add(relation);
 		}
 	}

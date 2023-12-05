@@ -153,11 +153,20 @@ public class ACTable {
 			String columnName = model.get(Definition.FKCOLUMN_NAME).stringValue();
 			ACColumn fkColumn = column(columnName);
 			ACColumn pkColumn = pkColumn(model);
+			if(pkColumn != null && fkColumn != null) {
+				ACRelation relation = new ACRelation(model, pkColumn, fkColumn);
 
-			ACRelation relation = new ACRelation(model,pkColumn,fkColumn);
+				pkColumn.addRelation(relation);
+				fkColumn.addRelation(relation);
+			} else {
+				if(pkColumn == null) {
+					System.out.println(columnName);
+				}
 
-			pkColumn.addRelation(relation);
-			fkColumn.addRelation(relation);
+				if(fkColumn == null) {
+					System.out.println(columnName);
+				}
+			}
 		}
 	}
 
