@@ -3,13 +3,14 @@ package tools.gnzlz.database.model;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
 public class DBExecuteQuery {
 	
-	private PreparedStatement sql;
+	private final PreparedStatement sql;
 	
 	protected DBExecuteQuery(PreparedStatement sql) {
 		this.sql = sql;
@@ -23,7 +24,7 @@ public class DBExecuteQuery {
 		try {
 			sql.setObject(i, object);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 		return this;
 	}
@@ -53,15 +54,11 @@ public class DBExecuteQuery {
 			sql.execute();
 			return true;
 		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
-		}finally {
-			try {
-				sql.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			System.out.println(e.getMessage());
+		} finally {
+			this.close();
 		}
+		return false;
 	}
 	
 	/**********************
@@ -76,13 +73,9 @@ public class DBExecuteQuery {
 				return r.getObject(1);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		} finally {
-			try {
-				sql.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			this.close();
 		}
 		return null;
 	}
@@ -91,7 +84,7 @@ public class DBExecuteQuery {
 	 * Execute
 	 **********************/
 	
-	public synchronized Object executeID(DBModel<?> dbModel){
+	public synchronized Object executeID(DBModel<?> dbModel) {
 		try {
 			sql.executeUpdate();
 			ResultSet r = sql.getGeneratedKeys();
@@ -104,13 +97,9 @@ public class DBExecuteQuery {
 				return id;
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		} finally {
-			try {
-				sql.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			this.close();
 		}
 
 		return null;
@@ -131,13 +120,9 @@ public class DBExecuteQuery {
 				dbModels.add(dbModel);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		} finally {
-			try {
-				sql.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			this.close();
 		}
 		return dbModels;
 	}
@@ -152,13 +137,9 @@ public class DBExecuteQuery {
 				dbModels.add(dbModel);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		} finally {
-			try {
-				sql.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			this.close();
 		}
 		return dbModels;
 	}
@@ -176,13 +157,9 @@ public class DBExecuteQuery {
 				return dbModel;
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		} finally {
-			try {
-				sql.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			this.close();
 		}
 		return null;
 	}
@@ -200,14 +177,21 @@ public class DBExecuteQuery {
 				return dbModel;
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		} finally {
-			try {
-				sql.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			this.close();
 		}
 		return null;
+	}
+
+	/**
+	 * close
+	 */
+	public synchronized void close(){
+		try {
+			sql.close();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
 	}
 }

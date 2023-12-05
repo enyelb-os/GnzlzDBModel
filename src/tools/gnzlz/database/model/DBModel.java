@@ -49,7 +49,7 @@ public class DBModel<M extends DBModel<M>>{
 			return c.getDeclaredConstructor().newInstance();
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		throw new IllegalStateException("Class Error: ");
 	}
@@ -350,7 +350,7 @@ public class DBModel<M extends DBModel<M>>{
 	 *******************************/
 	
 	private void insert(){
-		if(table != null && columns().size() > 0) {
+		if(table != null && !columns().isEmpty()) {
 			Insert<M> insert = Insert.<M>create().table(table.table());
 			for (DBObject dbObject : columns()) {
 				if (dbObject.object() != null && dbObject.column() != null) {
@@ -365,7 +365,7 @@ public class DBModel<M extends DBModel<M>>{
 	
 	private void update(){
 		DBObject primaryKey = primaryKey();
-		if(table != null && columns().size() > 0 && primaryKey != null) {
+		if(table != null && !columns().isEmpty() && primaryKey != null) {
 			Update<M> update = Update.<M>create().table(table.table());
 			for (DBObject dbObject : columns()) {
 				if(dbObject.object() != null && dbObject.column() != null) {
@@ -380,7 +380,7 @@ public class DBModel<M extends DBModel<M>>{
 	public void delete(){
 		if(exists) {
 			DBObject primaryKey = primaryKey();
-			if(table != null && columns().size() > 0 && primaryKey != null) {
+			if(table != null && !columns().isEmpty() && primaryKey != null) {
 				Delete<?> delete = Delete.<M>create().table(table.table()).where(primaryKey.name(), primaryKey.object());
 				table.configuration().connection().query(delete).execute();
 			}
