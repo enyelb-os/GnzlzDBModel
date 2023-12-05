@@ -104,7 +104,7 @@ public class DBConnection{
         	if (properties.script() != null && properties.script().script() != null) {
 				for (String sql : properties.script().script()) {
 					if (!connection.prepareStatement(sql).execute()) {
-						//System.out.println(sql);
+						System.out.println(sql);
 					}
 				}
 			}
@@ -188,7 +188,7 @@ public class DBConnection{
 	 * @param migration migration
 	 */
 	public synchronized void migrate(DBMigration migration){
-		migrate(migration,tables(properties.database(), null));
+		migrate(migration,tables(properties.database(), ""));
 	}
 
 	/**
@@ -197,15 +197,13 @@ public class DBConnection{
 	 */
 	synchronized void migrate(ArrayList<DBMigration> migrations){
 		if(migrations != null && !migrations.isEmpty()) {
-			//ArrayList<DBMigration> newTables = new ArrayList<>();
-			//ArrayList<DBModel<?>> tables = tables(properties.database(), null);
+			ArrayList<DBMigration> newTables = new ArrayList<>();
+			ArrayList<DBModel<?>> tables = tables(properties.database(), "");
 			migrations.forEach(m -> {
-				//if (migrate(m, tables)) {
-				//	newTables.add(m);
-				//}
+				if (migrate(m, tables)) {
+					newTables.add(m);
+				}
 			});
-			//repair
-			//ACDataBase.autocodeMigrations(this,newTables);
 		}
 	}
 
@@ -443,7 +441,7 @@ public class DBConnection{
 			}
 			return dbQuery;
 		} catch (SQLException e) {
-			//e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
         return null;
 	}
