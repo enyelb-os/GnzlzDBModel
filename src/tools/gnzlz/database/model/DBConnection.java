@@ -77,12 +77,7 @@ public class DBConnection{
 	 * shutdown
 	 */
 	private void shutdown() {
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				close();
-			}
-		});
+		Runtime.getRuntime().addShutdownHook(new Thread(this::close));
 	}
 
 	/**
@@ -151,6 +146,7 @@ public class DBConnection{
 	 * @param url url
 	 */
 	public synchronized DBConnection openForce(String url){
+		System.out.println("OpenForce");
 		close();
 		connection = null;
 		return open(url);

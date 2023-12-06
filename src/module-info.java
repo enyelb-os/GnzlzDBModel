@@ -1,6 +1,6 @@
 module tools.gnzlz.database {
     requires java.sql;
-    requires tools.gnzlz.system.io;
+    requires transitive tools.gnzlz.system.io;
 
     exports tools.gnzlz.database.autocode;
     exports tools.gnzlz.database.model;
