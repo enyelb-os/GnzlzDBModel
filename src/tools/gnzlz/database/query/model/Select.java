@@ -72,7 +72,6 @@ public class Select<M extends DBModel<M>> extends Query<Select<M>,M> implements 
 
 	@Override
 	public String query() {
-		StringBuilder select = new StringBuilder(generateSelect());
-		return select.toString();
+		return String.valueOf(generateSelect());
 	}
 }
